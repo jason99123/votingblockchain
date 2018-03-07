@@ -2,6 +2,7 @@ package votingBlockchain;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
@@ -31,7 +32,7 @@ public class VotingUser implements User, Serializable{
 		this.username = name;
 		this.org = _org;
 		this.keyValStore = store;
-		this.keyValStoreName = tokeyValStoreName(username, _org);
+		this.keyValStoreName = toKeyValstoreName(username, _org);
 		
 		String member = keyValStore.getValue(keyValStoreName);
 		if (null != member) {
@@ -110,12 +111,15 @@ public class VotingUser implements User, Serializable{
 	// save user state to io
 	public void saveState() {
 		ByteArrayOutputStream bos = new ByteArrayOutputStream();
-		
-		ObjectOutputStream oos = new ObjectOutputStream(bos);
-		oos.writeObject(this);
-		oos.flush();
-		keyValStore.setValue(keyValStoreName, Hex.toHexString(bos.toByteArray()));
-		bos.close();
+		try {
+			ObjectOutputStream oos = new ObjectOutputStream(bos);
+			oos.writeObject(this);
+			oos.flush();
+			keyValStore.setValue(keyValStoreName, Hex.toHexString(bos.toByteArray()));
+			bos.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	private VotingUser restoreState() {
@@ -123,18 +127,25 @@ public class VotingUser implements User, Serializable{
 		if (member != null) {
 			byte[] serial = Hex.decode(member);
 			ByteArrayInputStream bis = new ByteArrayInputStream(serial);
-			ObjectInputStream ois = new ObjectInputStream(bis);
-			VotingUser state = (VotingUser) ois.readObject();
-			if (state != null) {
-				this.username = state.username;
-				this.roles = state.roles;
-				this.account = state.account;
-				this.afflication = state.afflication;
-				this.org = state.org;
-				this.enrollmentSecret = state.enrollmentSecret;
-				this.enrollment = state.enrollment;
-				this.mspID = state.mspID;
-				return this;
+			try {
+				ObjectInputStream ois = new ObjectInputStream(bis);
+				VotingUser state = (VotingUser) ois.readObject();
+				if (state != null) {
+					this.username = state.username;
+					this.roles = state.roles;
+					this.account = state.account;
+					this.afflication = state.afflication;
+					this.org = state.org;
+					this.enrollmentSecret = state.enrollmentSecret;
+					this.enrollment = state.enrollment;
+					this.mspID = state.mspID;
+					return this;
+			}
+			} catch (IOException e) {
+				e.printStackTrace();
+			} catch (ClassNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
 		}
 		return null;
