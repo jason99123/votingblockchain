@@ -1,11 +1,11 @@
 package votingBlockchain;
 
 import java.io.File;
+import java.util.logging.Logger;
 
-import org.apache.log4j.Logger;
 
 public class VotingConfig {
-	private static Logger log = Logger.getLogger(VotingConfig.class);
+	private static Logger log = Logger.getLogger(VotingConfig.class.getName());
 	private Peers peers;
 	private Orderers orderers;
 	private Chaincode chaincode;
@@ -19,7 +19,8 @@ public class VotingConfig {
 	}
 
 	private String getChannelPath() {
-		String dir = ChaincodeManager.class.getClassLoader().getResource("fabric").getFile();
+		String dir = System.getProperty("user.dir");
+		//String dir = ChaincodeManager.class.getClassLoader().getResource("fabric").getFile();
 		File directory = new File(dir);
 		log.info("Directory: "+directory.getPath());
 		return directory.getPath();
@@ -30,7 +31,7 @@ public class VotingConfig {
 	public void setpeers(Peers p) {
 		this.peers = p;
 	}
-	public void getorderers(Orderers order) {
+	public void setorderers(Orderers order) {
 		this.orderers = order;
 	}
 	public Orderers getOrderers() {

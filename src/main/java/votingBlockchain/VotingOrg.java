@@ -9,14 +9,14 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.logging.Logger;
 
-import org.apache.log4j.Logger;
 import org.hyperledger.fabric_ca.sdk.HFCAClient;
 import org.hyperledger.fabric.sdk.User;
 import org.hyperledger.fabric.sdk.Peer;
 
 public class VotingOrg {
-	private static Logger log = Logger.getLogger(VotingOrg.class);
+	private static Logger log = Logger.getLogger(VotingOrg.class.getName());
 	private String orgName;
 	private String mspId;
 	private HFCAClient ca;
@@ -54,10 +54,10 @@ public class VotingOrg {
 	private File findFileKey(File file) {
 		File[] tmp = file.listFiles((dir, name) -> name.endsWith("_sk"));
 		if (tmp == null) {
-			log.error("SK file no found");
-		} 
+			log.warning("SK file no found");
+		}
 		if (tmp.length !=1) {
-			log.error("More than 1 found");
+			log.warning("More than 1 found");
 		}
 		return tmp[0];
 	}

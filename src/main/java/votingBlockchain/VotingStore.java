@@ -15,9 +15,9 @@ import java.security.Security;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+import java.util.logging.Logger;
 
 import org.apache.commons.compress.utils.IOUtils;
-import org.apache.log4j.Logger;
 import org.bouncycastle.asn1.pkcs.PrivateKeyInfo;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.openssl.PEMException;
@@ -26,7 +26,7 @@ import org.bouncycastle.openssl.jcajce.JcaPEMKeyConverter;
 import org.hyperledger.fabric.sdk.Enrollment;
 
 public class VotingStore {
-	private static Logger log = Logger.getLogger(VotingStore.class);
+	private static Logger log = Logger.getLogger(VotingStore.class.getName());
 	private String storeFile;
 	private final Map<String, VotingUser> member = new HashMap<>();
 	public VotingStore(File file) {

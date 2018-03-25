@@ -14,14 +14,15 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
+import java.util.logging.Logger;
 
-import org.apache.log4j.Logger;
 import org.hyperledger.fabric.sdk.BlockEvent;
 import org.hyperledger.fabric.sdk.BlockListener;
 import org.hyperledger.fabric.sdk.ChaincodeID;
 import org.hyperledger.fabric.sdk.Channel;
 import org.hyperledger.fabric.sdk.HFClient;
 import org.hyperledger.fabric.sdk.ProposalResponse;
+import org.hyperledger.fabric.sdk.QueryByChaincodeRequest;
 import org.hyperledger.fabric.sdk.SDKUtils;
 import org.hyperledger.fabric.sdk.TransactionProposalRequest;
 import org.hyperledger.fabric.sdk.exception.CryptoException;
@@ -34,7 +35,7 @@ import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
 
 public class ChaincodeManager {
-	private static Logger log = Logger.getLogger(ChaincodeManager.class);
+	private static Logger log = Logger.getLogger(ChaincodeManager.class.getName());
 	private VotingConfig config;
 	private Orderers orderers;
 	private Peers peers;
@@ -114,19 +115,19 @@ public class ChaincodeManager {
 				public void received(BlockEvent event) {
 					log.info("Event Listener Start");
                     try {
-						log.debug("event.getChannelId() = " + event.getChannelId());
+						log.info("event.getChannelId() = " + event.getChannelId());
 					} catch (InvalidProtocolBufferException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
-                    log.debug("event.getEvent().getChaincodeEvent().getPayload().toStringUtf8() = " + event.getEvent().getChaincodeEvent().getPayload().toStringUtf8());
-                    log.debug("event.getBlock().getData().getDataList().size() = " + event.getBlock().getData().getDataList().size());
+                    log.info("event.getEvent().getChaincodeEvent().getPayload().toStringUtf8() = " + event.getEvent().getChaincodeEvent().getPayload().toStringUtf8());
+                    log.info("event.getBlock().getData().getDataList().size() = " + event.getBlock().getData().getDataList().size());
                     ByteString byteString = event.getBlock().getData().getData(0);
                     String result = byteString.toStringUtf8();
-                    log.debug("byteString.toStringUtf8() = " + result);
+                    log.info("byteString.toStringUtf8() = " + result);
                     String r1[] = result.split("END CERTIFICATE");
                     String rr = r1[2];
-                    log.debug("rr = " + rr);
+                    log.info("rr = " + rr);
                     log.info("Event Listener End");
 				}
 			});
@@ -135,7 +136,7 @@ public class ChaincodeManager {
 	}
 
 	private VotingOrg getVotingOrg() {
-		File storeFile = new File(System.getProperty("java.io.tmpdir")+"/HFCSampletest.properties");
+		File storeFile = new File(System.getProperty("user.dir")+"/HFCSampletest.properties");
 		VotingStore store = new VotingStore(storeFile);
 		VotingOrg votingorg = new VotingOrg(peers, orderers, store, config.getcryptoPath());
 		log.info("Getting Organization");
@@ -172,12 +173,12 @@ public class ChaincodeManager {
 
         Collection<Set<ProposalResponse>> proposalConsistencySets = SDKUtils.getProposalConsistencySets(transactionPropResp);
         if (proposalConsistencySets.size() != 1) {
-            log.error("Expected only one set of consistent proposal responses but got " + proposalConsistencySets.size());
+            log.warning("Expected only one set of consistent proposal responses but got " + proposalConsistencySets.size());
         }
 
         if (failed.size() > 0) {
             ProposalResponse firstTransactionProposalResponse = failed.iterator().next();
-            log.error("Not enough endorsers for inspect:" + failed.size() + " endorser error: " + firstTransactionProposalResponse.getMessage() + ". Was verified: "
+            log.warning("Not enough endorsers for inspect:" + failed.size() + " endorser error: " + firstTransactionProposalResponse.getMessage() + ". Was verified: "
                     + firstTransactionProposalResponse.isVerified());
             resultMap.put("code", "error");
             resultMap.put("data", firstTransactionProposalResponse.getMessage());
@@ -213,15 +214,15 @@ public class ChaincodeManager {
         Collection<ProposalResponse> queryProposals = channel.queryByChaincode(queryByChaincodeRequest, channel.getPeers());
         for (ProposalResponse proposalResponse : queryProposals) {
             if (!proposalResponse.isVerified() || proposalResponse.getStatus() != ProposalResponse.Status.SUCCESS) {
-                log.debug("Failed query proposal from peer " + proposalResponse.getPeer().getName() + " status: " + proposalResponse.getStatus() + ". Messages: "
+                log.info("Failed query proposal from peer " + proposalResponse.getPeer().getName() + " status: " + proposalResponse.getStatus() + ". Messages: "
                         + proposalResponse.getMessage() + ". Was verified : " + proposalResponse.isVerified());
                 resultMap.put("code", "error");
                 resultMap.put("data", "Failed query proposal from peer " + proposalResponse.getPeer().getName() + " status: " + proposalResponse.getStatus() + ". Messages: "
                         + proposalResponse.getMessage() + ". Was verified : " + proposalResponse.isVerified());
             } else {
                 payload = proposalResponse.getProposalResponse().getResponse().getPayload().toStringUtf8();
-                log.debug("Query payload from peer: " + proposalResponse.getPeer().getName());
-                log.debug("" + payload);
+                log.info("Query payload from peer: " + proposalResponse.getPeer().getName());
+                log.info("" + payload);
                 resultMap.put("code", "success");
                 resultMap.put("data", payload);
             }
