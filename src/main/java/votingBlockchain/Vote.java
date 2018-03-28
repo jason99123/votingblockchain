@@ -1,68 +1,102 @@
 package votingBlockchain;
 
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Scanner;
-import java.util.Set;
 
-public class Vote {
 
-	HashMap<Integer, String> hmap = new HashMap<Integer, String>();
-	String candidatepath = "./resources/main/candidate.txt";
+import java.awt.BorderLayout;
+import java.awt.FlowLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+import javax.swing.ButtonGroup;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JRadioButton;
+
+public class Vote extends JFrame{
+	int candidateCount = 0;
+	String[] allCandidate = new String[10];
+	JRadioButton option1 = new JRadioButton();
+	JRadioButton option2 = new JRadioButton();
+	JRadioButton option3 = new JRadioButton();
+	JRadioButton option4 = new JRadioButton();
+	JButton confirmButton = new JButton("Submit");
+	JPanel midpanel = new JPanel();
+	JPanel bottompanel = new JPanel();
 	
-	public int acceptVote() {
-		getCandidate();
-		printCandidate();
-		int vote;
-		vote = getVote();
-		return vote;
-	}
+	public Vote() {
+		super("Please Choose one of the following candidate");
 
-	public int getVote() {
-		Scanner in = new Scanner(System.in);
-		String line;
-		line = in.nextLine();
-		int vote;
-		vote=Integer.parseInt(line);
-		String name = hmap.get(vote);
-		System.out.println("You have chosen "+name);
-		return vote;
+		setCandidateList();
+		setLayout(new BorderLayout());
+		ButtonGroup group = new ButtonGroup();
+		group.add(option1);
+		group.add(option2);
+		group.add(option3);
+		group.add(option4);
+		midpanel.setLayout(new FlowLayout());
+		midpanel.add(option1);
+		midpanel.add(option2);
+		midpanel.add(option3);
+		midpanel.add(option4);
+		bottompanel.setLayout(new FlowLayout(FlowLayout.CENTER));
+		bottompanel.add(confirmButton);
+		add(midpanel, BorderLayout.CENTER);
+		add(bottompanel,BorderLayout.SOUTH);
+		pack();
+		setVisible(true);
+		submitVote();
 		
 	}
 
-	private void printCandidate() {
-		System.out.println("Please choose one candidate");
-		Set set = hmap.entrySet();
-		Iterator it = set.iterator();
-		while(it.hasNext()) {
-			Map.Entry entry = (Map.Entry)it.next();
-			System.out.println("Candidate "+entry.getKey()+" : "+entry.getValue());
-		}
+	private void setCandidateList() {
 		
+		candidateCount = getCandidateNum();
+		
+		// load candidate name from source
+		option1.setText("MRA");
+		option2.setText("MRSB");
+		option3.setText("MissC");
+		option4.setText("Abstain");
 	}
-
-	private void getCandidate() {
-		BufferedReader br = null;
-		try {
-			String line;
-			br = new BufferedReader(new FileReader(candidatepath));
-			while ((line = br.readLine())!=null) {
-				String[] arr = line.split(",");
-				hmap.put(Integer.parseInt(arr[0]), arr[1]);
+	private int getCandidateNum() {
+		return 3;
+	}
+	private void submitVote() {
+		confirmButton.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent ae) {
+				if (option1.isSelected()) {
+					JOptionPane.showMessageDialog(null, "Selected "+option1.getText()+". Please exit the application.");
+					setVisible(false);
+					dispose();
+					updateVote();
+					}else if (option2.isSelected()) {
+					JOptionPane.showMessageDialog(null, "Selected "+option1.getText()+". Please exit the application.");
+					setVisible(false);
+					dispose();
+					updateVote();
+					}else if (option3.isSelected()) {
+					JOptionPane.showMessageDialog(null, "Selected "+option1.getText()+". Please exit the application.");
+					setVisible(false);
+					dispose();
+					updateVote();
+					}else if (option4.isSelected()) {
+					JOptionPane.showMessageDialog(null, "Selected "+option1.getText()+". Please exit the application.");
+					setVisible(false);
+					dispose();
+					updateVote();
+					}else {
+						JOptionPane.showMessageDialog(null, "Invalid Choice!","ERROR" ,JOptionPane.ERROR_MESSAGE);
+					}
 				
-			}
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+				}
+
+			});
+	}
+
+	private void updateVote() {
+		// TODO Auto-generated method stub
 		
 	}
 }

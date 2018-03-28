@@ -40,25 +40,25 @@ public class Login extends JFrame{
 		panel2.setLayout(null);
 		
 		headtext.setBounds(10,10, 300, 25);
-		panel.add(headtext);
+		panel2.add(headtext);
 		
 		headtext2.setBounds(10,40,300,25);
-		panel.add(headtext2);
+		panel2.add(headtext2);
 		
 		usertext.setBounds(10, 80 , 80 ,25);
-		panel.add(usertext);
+		panel2.add(usertext);
 		
 		userfield.setBounds(100,80,160,25);
-		panel.add(userfield);
+		panel2.add(userfield);
 		
 		pwtext.setBounds(10,120,80,25);
-		panel.add(pwtext);
+		panel2.add(pwtext);
 		
 		pwfield.setBounds(100,120,160,25);
-		panel.add(pwfield);
+		panel2.add(pwfield);
 		
 		loginbutton.setBounds(95, 160,80,25);
-		panel.add(loginbutton);
+		panel2.add(loginbutton);
 	}
 	public void readInfo() {
 		loginbutton.addActionListener(new ActionListener(){
@@ -71,11 +71,18 @@ public class Login extends JFrame{
 					JOptionPane.showMessageDialog(panel, "Login Successful.\nProceeding to Voting Interface");
 					setVisible(false);
 					dispose();
+					initVote();
 				}
 				if (check.equals("admin")) {
 					dispose();
 					setVisible(false);
 					JOptionPane.showMessageDialog(panel, "Welcome "+user+".\nProceeding to Configuration Panel");
+					Admin admin = new Admin();
+				}
+				if (check.equals("voted")) {
+					dispose();
+					setVisible(false);
+					JOptionPane.showMessageDialog(null, "This user has already voted.\nIf you have not voted, please contact the adminstrator.","ERROR" ,JOptionPane.ERROR_MESSAGE);
 				}
 				if (check.equals("not match"))
 					JOptionPane.showMessageDialog(null, "Wrong UserID or Password!","ERROR" ,JOptionPane.ERROR_MESSAGE);
@@ -83,10 +90,18 @@ public class Login extends JFrame{
 					pwfield.setText("");
 					userfield.requestFocus();
 				}
-			
+
+
 	});
 	}
-
+// function to connect blockchain
+/*
+ * 4 user state
+ * user = the login is correct, allow entry to vote function
+ * admin = the login is correct and the user type is admin, proceed to the admin page
+ * voted = the user is detected to have voted, block the access
+ * not match = the user and pw not matching, turn back to login page
+ */
 	private String VerifyAccount(String user, String pw) {
 		if (user.equals("user") && pw.equals("pw")) {
 			return "user";
@@ -94,8 +109,16 @@ public class Login extends JFrame{
 		if (user.equals("admin") && pw.equals("admin")) {
 			return "admin";
 		}
+		if (user.equals("user") && pw.equals("0")) {
+			return "voted";
+		}
 		return "not match";
 		
 	}
+	private void initVote() {
+		Vote vote = new Vote();
+		
+	}
+	
 }
 	
