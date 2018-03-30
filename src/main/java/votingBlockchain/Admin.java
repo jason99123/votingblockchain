@@ -7,6 +7,8 @@ import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
+import java.util.Properties;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -14,6 +16,11 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
+import com.jcraft.jsch.Channel;
+import com.jcraft.jsch.ChannelExec;
+import com.jcraft.jsch.JSch;
+import com.jcraft.jsch.JSchException;
+import com.jcraft.jsch.Session;
 
 
 
@@ -105,7 +112,85 @@ public class Admin extends JFrame{
 		
 	}
 	private void initDocker() {
+		//ssh to start the script
+		JFrame frame = new JFrame("start Voting");
+		JPanel panel = new JPanel();
+		panel.setLayout(null);
+		panel.setPreferredSize(new Dimension(300,110));
+		frame.add(panel);
+		JLabel orderer = new JLabel("User@OrdererIP");
+		JLabel peer = new JLabel("User@PeerIP");
+		JTextField ordererIP = new JTextField();
+		JTextField peerIP = new JTextField();
+		JButton button = new JButton("Execute");
+		orderer.setBounds(10,10,120,25);
+		ordererIP.setBounds(150, 10 ,120 ,25);
+		peer.setBounds(10, 40 , 120, 25);
+		peerIP.setBounds(150,40,120,25);
+		button.setBounds(100,70,100,25);
+		panel.add(orderer);
+		panel.add(ordererIP);
+		panel.add(peer);
+		panel.add(peerIP);
+		panel.add(button);
+		frame.pack();
+		frame.setVisible(true);
 		
+		
+		button.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent ae) {
+				String orderIP = null;
+				orderIP = ordererIP.getText();
+				String pIP = peerIP.getText();
+				if (orderIP != null) {
+					JSch jsch = new JSch();
+					String s[] = orderIP.split("@");
+					try {
+						String cmd = "docker-compose -f /home/"+s[0]+"/fabric/examples/e2e_cli/docker-compose-orderer.yaml up -d"; 		;
+						Session session = jsch.getSession(s[0],s[1],22);
+						java.util.Properties config = new java.util.Properties();
+						config.put("StrictHostKeyChecking", "no");
+						session.setConfig(config);
+						session.setPassword("1234");
+						session.connect();
+						Channel channel = session.openChannel("exec");
+						((ChannelExec)channel).setCommand(cmd);
+						channel.connect();
+						channel.disconnect();
+						session.disconnect();
+						
+					} catch (JSchException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					
+				}
+				if (pIP!=null) {
+					JSch jsch = new JSch();
+					String s[] = pIP.split("@");
+					try {
+						String cmd = "docker-compose -f /home/"+s[0]+"/fabric/examples/e2e_cli/docker-compose-peer.yaml up -d"; 		;
+						Session session = jsch.getSession(s[0],s[1],22);
+						java.util.Properties config = new java.util.Properties();
+						config.put("StrictHostKeyChecking", "no");
+						session.setConfig(config);
+						session.setPassword("1234");
+						session.connect();
+						Channel channel = session.openChannel("exec");
+						((ChannelExec)channel).setCommand(cmd);
+						channel.connect();
+						channel.disconnect();
+						session.disconnect();
+						
+					} catch (JSchException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					
+				}
+
+			}
+		});
 	}
 	private void printResult() {
 		JFrame result = new JFrame("Voting Result");
