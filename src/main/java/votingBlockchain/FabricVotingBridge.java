@@ -91,18 +91,18 @@ public class FabricVotingBridge {
 		peers.setorgName("org1.example.com");
 		peers.setorgMSPid("Org1MSP");
 		peers.setorgDomainName("org1.example.com");
-		peers.addPeer("peer0.org1.example.com", "peer0.org1.example.com", "grpc://192.168.1.57:7051", "grpc://192.168.1.57:7053", "http://192.168.1.57:7054");
+		peers.addPeer("peer0.org1.example.com", "peer0.org1.example.com", "grpc://192.168.1.31:7051", "grpc://192.168.1.31:7053", "http://192.168.1.31:7054");
 		return peers;
 	}
 	private Orderers getorderers() {
 		Orderers orderer = new Orderers();
 		orderer.setdomainName("example.com");
-		orderer.addOrderer("orderer.example.com", "grpc://192.168.1.57");
+		orderer.addOrderer("orderer.example.com", "grpc://192.168.1.31");
 		return orderer;
 	}
 	public void connectBridge() throws Exception {
 	
-		HFCAClient caClient = getHfCaClient("http://192.168.1.57:7054", null);
+		HFCAClient caClient = getHfCaClient("http://192.168.1.31:7054", null);
 
 		AppUser admin = getAdmin(caClient);
 	
@@ -153,9 +153,9 @@ public class FabricVotingBridge {
 		
 	}
 	static Channel getChannel(HFClient client) throws InvalidArgumentException, TransactionException {
-        Peer peer = client.newPeer("peer0.org1.example.com", "grpc://192.168.1.57:7051");
-        EventHub eventHub = client.newEventHub("eventhub01", "grpc://192.168.1.57:7053");
-        Orderer orderer = client.newOrderer("orderer.example.com", "grpc://192.168.1.57:7050");
+        Peer peer = client.newPeer("peer0.org1.example.com", "grpc://192.168.1.31:7051");
+        EventHub eventHub = client.newEventHub("eventhub01", "grpc://192.168.1.31:7053");
+        Orderer orderer = client.newOrderer("orderer.example.com", "grpc://192.168.1.31:7050");
         Channel channel = client.newChannel("mychannel");
         channel.addPeer(peer);
         channel.addEventHub(eventHub);

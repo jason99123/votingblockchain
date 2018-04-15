@@ -44,11 +44,10 @@ public class Main {
 
 	private static final Logger log = Logger.getLogger(Main.class);
 		   public static void main(String[] args) throws Exception {
-		       
-//		       FabricLoginBridge login = new FabricLoginBridge();
-//		       login.connectBridge();
-			   FabricVotingBridge vote = new FabricVotingBridge();
-			   vote.connectBridge();
+
+		       Login login = new Login();
+
+
 		    }
 		
 	}

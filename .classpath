@@ -102,5 +102,7 @@
 	<classpathentry kind="var" path="M2_REPO/net/i2p/crypto/eddsa/0.2.0/eddsa-0.2.0.jar"/>
 	<classpathentry kind="lib" path="/home/j/Downloads/jsch-0.1.54.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
+	<classpathentry kind="lib" path="/home/j/Downloads/JSON-java-master.zip"/>
+	<classpathentry kind="lib" path="/home/j/Downloads/json-20180130.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

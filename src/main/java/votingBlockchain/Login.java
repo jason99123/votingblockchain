@@ -5,6 +5,9 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -13,7 +16,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
-
+import org.json.*;
 public class Login extends JFrame{
 
 	JButton loginbutton = new JButton("Login");
@@ -66,7 +69,12 @@ public class Login extends JFrame{
 				String user = userfield.getText();
 				String pw = pwfield.getText();
 				String check = "notmatch";
-				check = VerifyAccount(user, pw); 
+				try {
+					check = VerifyAccount(user, pw);
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} 
 				if (check.equals("user")) {
 					JOptionPane.showMessageDialog(panel, "Login Successful.\nProceeding to Voting Interface");
 					setVisible(false);
@@ -102,16 +110,35 @@ public class Login extends JFrame{
  * voted = the user is detected to have voted, block the access
  * not match = the user and pw not matching, turn back to login page
  */
-	private String VerifyAccount(String user, String pw) {
-		if (user.equals("user") && pw.equals("pw")) {
-			return "user";
-		}
-		if (user.equals("admin") && pw.equals("admin")) {
-			return "admin";
-		}
-		if (user.equals("user") && pw.equals("0")) {
-			return "voted";
-		}
+	private String VerifyAccount(String user, String pw) throws Exception {
+	    FabricLoginBridge login = new FabricLoginBridge();
+	    String query = login.queryAll();
+	    String split[] = query.split("}}");
+	    Pattern p = Pattern.compile("\"([^\"]*)\"");
+	
+	    for (int i= 0;i<split.length;i++) {
+	    	ArrayList<String> list = new ArrayList<>();
+	    	Matcher m = p.matcher(split[i]);
+	    	while (m.find()) {
+	    		String tmp = m.group(1);
+	    		list.add(tmp);
+	    	}
+	    	String group = list.get(4);
+	    	String userID = list.get(6);
+	    	String passcode = list.get(8);
+	    	if (user.equals(userID)) {
+	    		if (pw.equals(passcode) && group.equals("voter")) {
+	    			return "user";
+	    		}
+	    		if (pw.equals(passcode)&&group.equals("admin")) {
+	    			return "admin";
+	    		}
+	    		if (pw.equals(passcode)&&group.equals("voted")) {
+	    			return "voted";
+	    		}
+	    	}
+	    }
+
 		return "notmatch";
 		
 	}

@@ -99,31 +99,33 @@ public class FabricLoginBridge {
 		return orderer;
 	}
 	
-	public void connectBridge() throws Exception {
+	public void connectBridge(String choice) throws Exception {
 		
-		HFCAClient caClient = getHfCaClient("http://192.168.1.57:7054", null);
-
+		HFCAClient caClient = getHfCaClient("http://192.168.1.251:7054", null);
 		AppUser admin = getAdmin(caClient);
-	
-
-
 		AppUser appUser = getUser(caClient, admin, "hfuser");
-	
-
-   
 		HFClient client = getHfClient();
- 
 		client.setUserContext(admin);
-
-
     	Channel channel = getChannel(client);
-    	queryBlockChain(client);
-    	queryCar(client, "VOTER2" );
-    	createnewCar(client, channel);
-    	queryCar(client, "VOTER1");
-    	queryBlockChain(client);
+ //   	queryBlockChain(client);
+ //   	queryVoter(client, "VOTER2" );
+ //   	createnewVoter(client, channel);
+   // 	queryVoter(client, "VOTER1");
+
 	}
-	private void createnewCar(HFClient client, Channel channel) throws InvalidArgumentException, ProposalException, InterruptedException, ExecutionException, TimeoutException {
+	public String queryAll() throws Exception {
+		
+		HFCAClient caClient = getHfCaClient("http://192.168.1.251:7054", null);
+		AppUser admin = getAdmin(caClient);	
+		AppUser appUser = getUser(caClient, admin, "hfuser");	   
+		HFClient client = getHfClient(); 
+		client.setUserContext(admin);
+    	Channel channel = getChannel(client);
+    	String result = queryBlockChain(client);
+    	return result;
+    	
+	}
+	private void createnewVoter(HFClient client, Channel channel) throws InvalidArgumentException, ProposalException, InterruptedException, ExecutionException, TimeoutException {
 		BlockEvent.TransactionEvent event = sendTransaction(client,channel).get(60, TimeUnit.SECONDS);
 	}
     static CompletableFuture<BlockEvent.TransactionEvent> sendTransaction(HFClient client, Channel channel)
@@ -136,7 +138,7 @@ public class FabricLoginBridge {
         Collection<ProposalResponse> responses = channel.sendTransactionProposal(tpr);
         return channel.sendTransaction(responses);
     }
-	private void queryCar(HFClient client, String query) throws InvalidArgumentException, ProposalException {
+	private String queryVoter(HFClient client, String query) throws InvalidArgumentException, ProposalException {
         System.out.println("Try to query "+query);
 		Channel channel = client.getChannel("mychannel");
         QueryByChaincodeRequest qpr = client.newQueryProposalRequest();
@@ -147,14 +149,15 @@ public class FabricLoginBridge {
         Collection<ProposalResponse> res = channel.queryByChaincode(qpr);
         for (ProposalResponse pres : res) {
             String stringResponse = new String(pres.getChaincodeActionResponsePayload());
-            System.out.println(stringResponse);
+            return stringResponse;
         }
+        return "";
 		
 	}
 	static Channel getChannel(HFClient client) throws InvalidArgumentException, TransactionException {
-        Peer peer = client.newPeer("peer0.org1.example.com", "grpc://192.168.1.57:7051");
-        EventHub eventHub = client.newEventHub("eventhub01", "grpc://192.168.1.57:7053");
-        Orderer orderer = client.newOrderer("orderer.example.com", "grpc://192.168.1.57:7050");
+        Peer peer = client.newPeer("peer0.org1.example.com", "grpc://192.168.1.251:7051");
+        EventHub eventHub = client.newEventHub("eventhub01", "grpc://192.168.1.251:7053");
+        Orderer orderer = client.newOrderer("orderer.example.com", "grpc://192.168.1.251:7050");
         Channel channel = client.newChannel("mychannel");
         channel.addPeer(peer);
         channel.addEventHub(eventHub);
@@ -218,7 +221,7 @@ public class FabricLoginBridge {
        caClient.setCryptoSuite(cryptoSuite);
        return caClient;
    }
-   static void queryBlockChain(HFClient client) throws ProposalException, InvalidArgumentException {
+   static String queryBlockChain(HFClient client) throws ProposalException, InvalidArgumentException {
        Channel channel = client.getChannel("mychannel");
        QueryByChaincodeRequest qpr = client.newQueryProposalRequest();
        ChaincodeID cId = ChaincodeID.newBuilder().setName("fabcar").build();
@@ -227,8 +230,9 @@ public class FabricLoginBridge {
        Collection<ProposalResponse> res = channel.queryByChaincode(qpr);
        for (ProposalResponse pres : res) {
            String stringResponse = new String(pres.getChaincodeActionResponsePayload());
-           System.out.println(stringResponse);
+           return stringResponse;
        }
+       return "";
    }
 	
 }
