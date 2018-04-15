@@ -26,11 +26,11 @@ public class VotingOrg {
 	Map<String, String> ordererLocation = new HashMap<>();
 	Map<String, String> eventLocation = new HashMap<>();
 	Set<Peer> peers = new HashSet<>();
-	private VotingUser admin;
+	private AppUser admin;
 	private String caLocation;
 	private Properties caProperties = null;
 	private String domain;
-	private VotingUser peerAdmin;
+	private AppUser peerAdmin;
 	public VotingOrg(Peers peers, Orderers orderers, VotingStore store, String path) {
 		this.orgName = peers.getorgName();
 		this.mspId = peers.getorgMSPid();
@@ -43,32 +43,34 @@ public class VotingOrg {
 			addOrdererLocation(orderers.getordererList().get(i).getordererName(), orderers.getordererList().get(i).getordererLocation());
 		}
 		setdomain(peers.getorgDomainName());
-		setAdmin(store.getMember("admin", peers.getorgName()));
+//		setAdmin(store.getMember("admin", peers.getorgName()));
 		File keyFile = Paths.get(path, "/peerOrganizations/", peers.getorgDomainName(), String.format("/users/Admin@%s/map/keystore", peers.getorgDomainName())).toFile();
 		File certFile = Paths.get(path, "/peerOrganizations", peers.getorgName(), String.format("/users/Admin@%s/msp/signcerts/Admin@%s-cert.pem",  peers.getorgDomainName(), peers.getorgDomainName())).toFile();
 		log.info("keyFile path = "+keyFile.getAbsolutePath());
 		log.info("CertFile = "+certFile.getAbsolutePath());
-		setpeerAdmin(store.getMember(peers.getorgName()+"Admin", peers.getorgName(), peers.getorgMSPid(), findFileKey(keyFile), certFile));
+//		setpeerAdmin(store.getMember(peers.getorgName()+"Admin", peers.getorgName(), peers.getorgMSPid(), findFileKey(keyFile), certFile));
 	}
 	
 	private File findFileKey(File file) {
 		File[] tmp = file.listFiles((dir, name) -> name.endsWith("_sk"));
 		if (tmp == null) {
 			log.warning("SK file no found");
-		}
-		if (tmp.length !=1) {
+		} else if(tmp.length !=1) 
+		{
 			log.warning("More than 1 found");
+		} else {
+			return tmp[0];
 		}
-		return tmp[0];
+		return null;
 	}
 
 	public String getorgName() {
 		return this.orgName;
 	}
-	public VotingUser getAdmin() {
+	public AppUser getAdmin() {
 		return this.admin;
 	}
-	public void setAdmin(VotingUser _admin) {
+	public void setAdmin(AppUser _admin) {
 		this.admin = _admin;
 	}
 	public String getmspId() {
@@ -119,7 +121,7 @@ public class VotingOrg {
 	public HFCAClient getCAClient() {
 		return this.ca;
 	}
-	public void addUser(VotingUser user) {
+	public void addUser(AppUser user) {
 		userMap.put(user.getName(), user);
 	}
 	public User getUser(String name) {
@@ -134,10 +136,10 @@ public class VotingOrg {
 	public Properties getCAProperties() {
 		return this.caProperties;
 	}
-	public void setpeerAdmin(VotingUser _admin) {
+	public void setpeerAdmin(AppUser _admin) {
 		this.peerAdmin = _admin;
 	}
-	public VotingUser getpeerAdmin() {
+	public AppUser getpeerAdmin() {
 		return this.peerAdmin;
 	}
 	public String getdomain() {

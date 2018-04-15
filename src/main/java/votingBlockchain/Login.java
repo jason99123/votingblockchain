@@ -65,7 +65,7 @@ public class Login extends JFrame{
 			public void actionPerformed(ActionEvent ae) {
 				String user = userfield.getText();
 				String pw = pwfield.getText();
-				String check = "not match";
+				String check = "notmatch";
 				check = VerifyAccount(user, pw); 
 				if (check.equals("user")) {
 					JOptionPane.showMessageDialog(panel, "Login Successful.\nProceeding to Voting Interface");
@@ -84,7 +84,7 @@ public class Login extends JFrame{
 					setVisible(false);
 					JOptionPane.showMessageDialog(null, "This user has already voted.\nIf you have not voted, please contact the adminstrator.","ERROR" ,JOptionPane.ERROR_MESSAGE);
 				}
-				if (check.equals("not match"))
+				if (check.equals("notmatch"))
 					JOptionPane.showMessageDialog(null, "Wrong UserID or Password!","ERROR" ,JOptionPane.ERROR_MESSAGE);
 					userfield.setText("");
 					pwfield.setText("");
@@ -112,7 +112,7 @@ public class Login extends JFrame{
 		if (user.equals("user") && pw.equals("0")) {
 			return "voted";
 		}
-		return "not match";
+		return "notmatch";
 		
 	}
 	private void initVote() {

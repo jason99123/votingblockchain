@@ -14,6 +14,8 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 
+import org.apache.commons.codec.digest.DigestUtils;
+
 public class Vote extends JFrame{
 	int candidateCount = 0;
 	String[] allCandidate = new String[10];
@@ -24,6 +26,7 @@ public class Vote extends JFrame{
 	JButton confirmButton = new JButton("Submit");
 	JPanel midpanel = new JPanel();
 	JPanel bottompanel = new JPanel();
+	private String sha256hex[] = null;
 	
 	public Vote() {
 		super("Please Choose one of the following candidate");
@@ -53,7 +56,7 @@ public class Vote extends JFrame{
 	private void setCandidateList() {
 		
 		candidateCount = getCandidateNum();
-		
+		String opt[] = {"MRA", "MRSB", "MissC", "Abstain"};
 		// load candidate name from source
 		option1.setText("MRA");
 		option2.setText("MRSB");
@@ -94,9 +97,13 @@ public class Vote extends JFrame{
 
 			});
 	}
-
+	private String getCandidate() {
+		String name = null;
+		return name;
+	}
 	private void updateVote() {
 		// TODO Auto-generated method stub
 		
 	}
+
 }

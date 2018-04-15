@@ -157,9 +157,9 @@ public class ChaincodeManager {
         transactionProposalRequest.setArgs(args);
 
         Map<String, byte[]> tm2 = new HashMap<>();
-        tm2.put("HyperLedgerFabric", "TransactionProposalRequest:JavaSDK".getBytes(UTF_8));
-        tm2.put("method", "TransactionProposalRequest".getBytes(UTF_8));
-        tm2.put("result", ":)".getBytes(UTF_8));
+ //       tm2.put("HyperLedgerFabric", "TransactionProposalRequest:JavaSDK".getBytes(UTF_8));
+ //       tm2.put("method", "TransactionProposalRequest".getBytes(UTF_8));
+ //       tm2.put("result", ":)".getBytes(UTF_8));
         transactionProposalRequest.setTransientMap(tm2);
 
         Collection<ProposalResponse> transactionPropResp = channel.sendTransactionProposal(transactionProposalRequest, channel.getPeers());
@@ -207,8 +207,8 @@ public class ChaincodeManager {
         queryByChaincodeRequest.setChaincodeID(chaincodeID);
 
         Map<String, byte[]> tm2 = new HashMap<>();
-        tm2.put("HyperLedgerFabric", "QueryByChaincodeRequest:JavaSDK".getBytes(UTF_8));
-        tm2.put("method", "QueryByChaincodeRequest".getBytes(UTF_8));
+   //     tm2.put("HyperLedgerFabric", "QueryByChaincodeRequest:JavaSDK".getBytes(UTF_8));
+   //     tm2.put("method", "QueryByChaincodeRequest".getBytes(UTF_8));
         queryByChaincodeRequest.setTransientMap(tm2);
 
         Collection<ProposalResponse> queryProposals = channel.queryByChaincode(queryByChaincodeRequest, channel.getPeers());

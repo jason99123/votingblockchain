@@ -28,7 +28,7 @@ import org.hyperledger.fabric.sdk.Enrollment;
 public class VotingStore {
 	private static Logger log = Logger.getLogger(VotingStore.class.getName());
 	private String storeFile;
-	private final Map<String, VotingUser> member = new HashMap<>();
+	private final Map<String, AppUser> member = new HashMap<>();
 	public VotingStore(File file) {
 		this.storeFile = file.getAbsolutePath();
 	}
@@ -60,23 +60,23 @@ public class VotingStore {
 		Properties properties = loadProperties();
 		return properties.getProperty(key);
 	}
-	public VotingUser getMember(String name, String org) {
-		VotingUser user = member.get(VotingUser.toKeyValstoreName(name, org));
+/*	public AppUser getMember(String name, String org) {
+		AppUser user = member.get(AppUser.toKeyValstoreName(name, org));
 		if (user != null) {
 			return user;
 		} else {
-			user = new VotingUser(name, org, this);
+			user = new AppUser(name, org, this);
 			return user;
 		}	
 	}
-	public VotingUser getMember(String name, String org, String mspId, File keyFile, File certFile) {
-		VotingUser user = member.get(VotingUser.toKeyValstoreName(name, org));
+	public AppUser getMember(String name, String org, String mspId, File keyFile, File certFile) {
+		AppUser user = member.get(AppUser.toKeyValstoreName(name, org));
 		if (user != null) {
 			log.info("Returning User: "+user);
 			return user;
 		} else {
 			try {
-				user = new VotingUser(name, org, this);
+				user = new AppUser(name, org, this);
 				user.setMspId(mspId);
 				String cert = new String(IOUtils.toByteArray(new FileInputStream(certFile)), "UTF-8");
 				PrivateKey privatekey = getPrivateKeyFromBytes(IOUtils.toByteArray(new FileInputStream(keyFile)));
@@ -89,6 +89,7 @@ public class VotingStore {
 		}
 		
 	}
+	*/
 	private PrivateKey getPrivateKeyFromBytes(byte[] byteArray) {
 		Reader reader = new StringReader(new String(byteArray));
 		PrivateKeyInfo info;

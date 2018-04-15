@@ -23,6 +23,9 @@ public class Chaincode {
 	public String getChaincodeName() {
 		return this.chaincodeName;
 	}
+	public void setChaincodeName(String name) {
+		this.chaincodeName = name;
+	}
 	
 	public String getChaincodePath() {
 		return this.chaincodePath;
@@ -48,7 +51,7 @@ public class Chaincode {
 		this.invokeWaitTime = _invokeWaitTime;
 	}
 
-	public int getDeployWatiTime() {
+	public int getDeployWaitTime() {
 		return this.deployWaitTime;
 	}
 
