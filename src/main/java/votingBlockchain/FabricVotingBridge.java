@@ -100,56 +100,72 @@ public class FabricVotingBridge {
 		orderer.addOrderer("orderer.example.com", "grpc://192.168.1.31");
 		return orderer;
 	}
+	public String querySingle(String voter) throws Exception{
+		HFCAClient caClient = getHfCaClient("http://192.168.1.31:7054", null);
+		AppUser admin = getAdmin(caClient);
+		AppUser appUser = getUser(caClient, admin, "hfuser");
+		HFClient client = getHfClient();
+		client.setUserContext(admin);
+    	Channel channel = getChannel(client);
+    	return queryCan(client,voter);
+	}
 	public void connectBridge() throws Exception {
 	
 		HFCAClient caClient = getHfCaClient("http://192.168.1.31:7054", null);
-
 		AppUser admin = getAdmin(caClient);
-	
-
-
 		AppUser appUser = getUser(caClient, admin, "hfuser");
-	
-
-   
 		HFClient client = getHfClient();
- 
-    client.setUserContext(admin);
-
-
+		client.setUserContext(admin);
     	Channel channel = getChannel(client);
-    	queryBlockChain(client);
-    	queryCar(client, "CAR4" );
-    	createnewCar(client, channel);
-    	queryCar(client, "CAR11");
-    	queryBlockChain(client);
+  //  	queryBlockChain(client);
+  //  	queryCar(client, "CAR4" );
+  //  	createnewCan(client, channel);
+  //  	queryCar(client, "CAR11");
+  //  	queryBlockChain(client);
 	}
-	private void createnewCar(HFClient client, Channel channel) throws InvalidArgumentException, ProposalException, InterruptedException, ExecutionException, TimeoutException {
-		BlockEvent.TransactionEvent event = sendTransaction(client,channel).get(60, TimeUnit.SECONDS);
+	public String queryAll() throws Exception{
+		
+		HFCAClient caClient = getHfCaClient("http://192.168.1.31:7054", null);
+		AppUser admin = getAdmin(caClient);
+		AppUser appUser = getUser(caClient, admin, "hfuser");
+		HFClient client = getHfClient();
+		client.setUserContext(admin);
+    	Channel channel = getChannel(client);
+    	String result = queryBlockChain(client);
+    	return result;
 	}
-    static CompletableFuture<BlockEvent.TransactionEvent> sendTransaction(HFClient client, Channel channel)
+	public void createnewCan(String args[]) throws Exception {
+		HFCAClient caClient = getHfCaClient("http://192.168.1.31:7054", null);
+		AppUser admin = getAdmin(caClient);
+		AppUser appUser = getUser(caClient, admin, "hfuser");
+		HFClient client = getHfClient();
+		client.setUserContext(admin);
+    	Channel channel = getChannel(client);
+		BlockEvent.TransactionEvent event = sendTransaction(client,channel, args).get(60, TimeUnit.SECONDS);
+	}
+    static CompletableFuture<BlockEvent.TransactionEvent> sendTransaction(HFClient client, Channel channel, String[] args)
             throws InvalidArgumentException, ProposalException {
         TransactionProposalRequest tpr = client.newTransactionProposalRequest();
         ChaincodeID cid = ChaincodeID.newBuilder().setName("fabcar").build();
         tpr.setChaincodeID(cid);
-        tpr.setFcn("createCar");
-        tpr.setArgs(new String[]{"CAR11", "Skoda", "MB1000", "WHITE", "Lukas"});
+        tpr.setFcn("createCan");
+        tpr.setArgs(args);
         Collection<ProposalResponse> responses = channel.sendTransactionProposal(tpr);
         return channel.sendTransaction(responses);
     }
-	private void queryCar(HFClient client, String query) throws InvalidArgumentException, ProposalException {
-        System.out.println("Try to query "+query);
+	private String queryCan(HFClient client, String query) throws InvalidArgumentException, ProposalException {
 		Channel channel = client.getChannel("mychannel");
         QueryByChaincodeRequest qpr = client.newQueryProposalRequest();
         ChaincodeID cId = ChaincodeID.newBuilder().setName("fabcar").build();
         qpr.setChaincodeID(cId);
-        qpr.setFcn("queryCar");
+        qpr.setFcn("queryCan");
         qpr.setArgs(new String[] {query});
         Collection<ProposalResponse> res = channel.queryByChaincode(qpr);
         for (ProposalResponse pres : res) {
             String stringResponse = new String(pres.getChaincodeActionResponsePayload());
-            System.out.println(stringResponse);
+            return stringResponse;
         }
+        return "";
 		
 	}
 	static Channel getChannel(HFClient client) throws InvalidArgumentException, TransactionException {
@@ -219,17 +235,37 @@ public class FabricVotingBridge {
        caClient.setCryptoSuite(cryptoSuite);
        return caClient;
    }
-   static void queryBlockChain(HFClient client) throws ProposalException, InvalidArgumentException {
+   static String queryBlockChain(HFClient client) throws ProposalException, InvalidArgumentException {
        Channel channel = client.getChannel("mychannel");
        QueryByChaincodeRequest qpr = client.newQueryProposalRequest();
        ChaincodeID cId = ChaincodeID.newBuilder().setName("fabcar").build();
        qpr.setChaincodeID(cId);
-       qpr.setFcn("queryAllCars");
+       qpr.setFcn("queryAllCan");
        Collection<ProposalResponse> res = channel.queryByChaincode(qpr);
        for (ProposalResponse pres : res) {
            String stringResponse = new String(pres.getChaincodeActionResponsePayload());
-           System.out.println(stringResponse);
+           return stringResponse;
        }
+       return "";
    }
+	public void changeCanStatus(String[] args) throws Exception{
+		HFCAClient caClient = getHfCaClient("http://192.168.1.31:7054", null);
+		AppUser admin = getAdmin(caClient);
+		AppUser appUser = getUser(caClient, admin, "hfuser");
+		HFClient client = getHfClient();
+		client.setUserContext(admin);
+    	Channel channel = getChannel(client);
+    	BlockEvent.TransactionEvent event = changeStatusTransaction(client,channel,args).get(60, TimeUnit.SECONDS);
+	}
+	static CompletableFuture<BlockEvent.TransactionEvent> changeStatusTransaction(HFClient client, Channel channel, String[] args)
+            throws InvalidArgumentException, ProposalException {
+        TransactionProposalRequest tpr = client.newTransactionProposalRequest();
+        ChaincodeID cid = ChaincodeID.newBuilder().setName("fabcar").build();
+        tpr.setChaincodeID(cid);
+        tpr.setFcn("changeCanStatus");
+        tpr.setArgs(args);
+        Collection<ProposalResponse> responses = channel.sendTransactionProposal(tpr);
+        return channel.sendTransaction(responses);
+    }
 
 }

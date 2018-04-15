@@ -99,7 +99,7 @@ public class FabricLoginBridge {
 		return orderer;
 	}
 	
-	public void connectBridge(String choice) throws Exception {
+	public String querySingle(String voter) throws Exception {
 		
 		HFCAClient caClient = getHfCaClient("http://192.168.1.251:7054", null);
 		AppUser admin = getAdmin(caClient);
@@ -108,9 +108,9 @@ public class FabricLoginBridge {
 		client.setUserContext(admin);
     	Channel channel = getChannel(client);
  //   	queryBlockChain(client);
- //   	queryVoter(client, "VOTER2" );
+    	return queryVoter(client, voter);
  //   	createnewVoter(client, channel);
-   // 	queryVoter(client, "VOTER1");
+   	
 
 	}
 	public String queryAll() throws Exception {
@@ -125,21 +125,45 @@ public class FabricLoginBridge {
     	return result;
     	
 	}
-	private void createnewVoter(HFClient client, Channel channel) throws InvalidArgumentException, ProposalException, InterruptedException, ExecutionException, TimeoutException {
-		BlockEvent.TransactionEvent event = sendTransaction(client,channel).get(60, TimeUnit.SECONDS);
+	public void createnewVoter(String[] args) throws Exception {
+		HFCAClient caClient = getHfCaClient("http://192.168.1.251:7054", null);
+		AppUser admin = getAdmin(caClient);
+		AppUser appUser = getUser(caClient, admin, "hfuser");
+		HFClient client = getHfClient();
+		client.setUserContext(admin);
+    	Channel channel = getChannel(client);
+		BlockEvent.TransactionEvent event = sendTransaction(client,channel,args).get(60, TimeUnit.SECONDS);
 	}
-    static CompletableFuture<BlockEvent.TransactionEvent> sendTransaction(HFClient client, Channel channel)
+	public void changevotergroup(String[] args) throws Exception{
+		HFCAClient caClient = getHfCaClient("http://192.168.1.251:7054", null);
+		AppUser admin = getAdmin(caClient);
+		AppUser appUser = getUser(caClient, admin, "hfuser");
+		HFClient client = getHfClient();
+		client.setUserContext(admin);
+    	Channel channel = getChannel(client);
+    	BlockEvent.TransactionEvent event = changeGroupTransaction(client,channel,args).get(60, TimeUnit.SECONDS);
+	}
+	static CompletableFuture<BlockEvent.TransactionEvent> changeGroupTransaction(HFClient client, Channel channel, String[] args)
+            throws InvalidArgumentException, ProposalException {
+        TransactionProposalRequest tpr = client.newTransactionProposalRequest();
+        ChaincodeID cid = ChaincodeID.newBuilder().setName("fabcar").build();
+        tpr.setChaincodeID(cid);
+        tpr.setFcn("changeVoterGroup");
+        tpr.setArgs(args);
+        Collection<ProposalResponse> responses = channel.sendTransactionProposal(tpr);
+        return channel.sendTransaction(responses);
+    }
+    static CompletableFuture<BlockEvent.TransactionEvent> sendTransaction(HFClient client, Channel channel, String[] args)
             throws InvalidArgumentException, ProposalException {
         TransactionProposalRequest tpr = client.newTransactionProposalRequest();
         ChaincodeID cid = ChaincodeID.newBuilder().setName("fabcar").build();
         tpr.setChaincodeID(cid);
         tpr.setFcn("createVoter");
-        tpr.setArgs(new String[]{"VOTER10", "create1", "1234", "voter"});
+        tpr.setArgs(args);
         Collection<ProposalResponse> responses = channel.sendTransactionProposal(tpr);
         return channel.sendTransaction(responses);
     }
 	private String queryVoter(HFClient client, String query) throws InvalidArgumentException, ProposalException {
-        System.out.println("Try to query "+query);
 		Channel channel = client.getChannel("mychannel");
         QueryByChaincodeRequest qpr = client.newQueryProposalRequest();
         ChaincodeID cId = ChaincodeID.newBuilder().setName("fabcar").build();

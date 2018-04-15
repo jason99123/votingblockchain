@@ -6,6 +6,8 @@ import java.security.NoSuchProviderException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.hyperledger.fabric.sdk.exception.CryptoException;
 import org.hyperledger.fabric.sdk.exception.InvalidArgumentException;
@@ -36,16 +38,18 @@ import java.io.ObjectOutputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
 public class Main {
 
-	private static final Logger log = Logger.getLogger(Main.class);
+//	private static final Logger log = Logger.getLogger(Main.class);
 		   public static void main(String[] args) throws Exception {
-
-		       Login login = new Login();
+//			  FabricLoginBridge brigde = new FabricLoginBridge();
+//			  System.out.println(brigde.queryAll());
+	       Login login = new Login();
 
 
 		    }

@@ -163,7 +163,7 @@ func (s *SmartContract) queryAllVoter(APIstub shim.ChaincodeStubInterface) sc.Re
 	}
 	buffer.WriteString("]")
 
-	fmt.Printf("- queryAllCars:\n%s\n", buffer.String())
+	fmt.Printf("- queryAllVoter:\n%s\n", buffer.String())
 
 	return shim.Success(buffer.Bytes())
 }

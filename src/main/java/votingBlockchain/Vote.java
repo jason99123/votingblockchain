@@ -6,6 +6,9 @@ import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
@@ -26,9 +29,9 @@ public class Vote extends JFrame{
 	JButton confirmButton = new JButton("Submit");
 	JPanel midpanel = new JPanel();
 	JPanel bottompanel = new JPanel();
-	private String sha256hex[] = null;
+
 	
-	public Vote() {
+	public Vote() throws Exception {
 		super("Please Choose one of the following candidate");
 
 		setCandidateList();
@@ -53,42 +56,42 @@ public class Vote extends JFrame{
 		
 	}
 
-	private void setCandidateList() {
+	private void setCandidateList() throws Exception {
 		
-		candidateCount = getCandidateNum();
-		String opt[] = {"MRA", "MRSB", "MissC", "Abstain"};
-		// load candidate name from source
-		option1.setText("MRA");
-		option2.setText("MRSB");
-		option3.setText("MissC");
+		String[] list = getCandidate();
+		option1.setText(list[0]);
+		option2.setText(list[1]);
+		option3.setText(list[2]);
 		option4.setText("Abstain");
 	}
-	private int getCandidateNum() {
-		return 3;
-	}
+
 	private void submitVote() {
 		confirmButton.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent ae) {
 				if (option1.isSelected()) {
-					JOptionPane.showMessageDialog(null, "Selected "+option1.getText()+". Please exit the application.");
+					String choice = option1.getText();
+					JOptionPane.showMessageDialog(null, "Selected "+choice+". Please exit the application.");
 					setVisible(false);
 					dispose();
-					updateVote();
+					updateVote(choice);
 					}else if (option2.isSelected()) {
-					JOptionPane.showMessageDialog(null, "Selected "+option1.getText()+". Please exit the application.");
+						String choice = option2.getText();
+					JOptionPane.showMessageDialog(null, "Selected "+choice+". Please exit the application.");
 					setVisible(false);
 					dispose();
-					updateVote();
+					updateVote(choice);
 					}else if (option3.isSelected()) {
-					JOptionPane.showMessageDialog(null, "Selected "+option1.getText()+". Please exit the application.");
+						String choice = option3.getText();
+					JOptionPane.showMessageDialog(null, "Selected "+choice+". Please exit the application.");
 					setVisible(false);
 					dispose();
-					updateVote();
+					updateVote(choice);
 					}else if (option4.isSelected()) {
-					JOptionPane.showMessageDialog(null, "Selected "+option1.getText()+". Please exit the application.");
+						String choice = option4.getText();
+					JOptionPane.showMessageDialog(null, "Selected "+choice+". Please exit the application.");
 					setVisible(false);
 					dispose();
-					updateVote();
+					updateVote(choice);
 					}else {
 						JOptionPane.showMessageDialog(null, "Invalid Choice!","ERROR" ,JOptionPane.ERROR_MESSAGE);
 					}
@@ -97,12 +100,58 @@ public class Vote extends JFrame{
 
 			});
 	}
-	private String getCandidate() {
-		String name = null;
-		return name;
+	public String[] getCandidate() throws Exception {
+		FabricVotingBridge vote = new FabricVotingBridge();
+	    String query = vote.queryAll();
+	    String split[] = query.split("}}");
+	    Pattern p = Pattern.compile("\"([^\"]*)\"");
+	    String ret[] = new String[3];
+	    int count = 0;
+	    for (int i= 0;i<split.length-1;i++) {
+	    	ArrayList<String> list = new ArrayList<String>();
+	    	Matcher m = p.matcher(split[i]);
+	    	while (m.find()) {
+	    		String tmp = m.group(1);
+	    		list.add(tmp);
+	    	}
+	    	String canName = list.get(6);
+	    	String status = list.get(8);
+	    	if (status.equals("ACTIVE")&&!canName.equals("Abstain")) {
+	    		ret[count] = canName;
+	    		count++;
+	    	}
+	    }
+	    return ret;
 	}
-	private void updateVote() {
-		// TODO Auto-generated method stub
+	private void updateVote(String choice) {
+		
+		try {
+			FabricVotingBridge vote = new FabricVotingBridge();
+	
+		    String query = vote.queryAll();
+		    String split[] = query.split("}}");
+		    Pattern p = Pattern.compile("\"([^\"]*)\"");
+
+	
+		    for (int i= 0;i<split.length-1;i++) {
+		    	ArrayList<String> list = new ArrayList<String>();
+		    	Matcher m = p.matcher(split[i]);
+		    	while (m.find()) {
+		    		String tmp = m.group(1);
+		    		list.add(tmp);
+		    	}
+		    	String canName = list.get(6);
+		    	if (canName.equals(choice)) {
+		    		int votenum = Integer.parseInt(list.get(4));
+		    		String canNo = list.get(1);
+					vote.createnewCan(new String[]{canNo,canName,Integer.toString(votenum+1), "ACTIVE"});
+		    	}
+		    }
+
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
 	}
 

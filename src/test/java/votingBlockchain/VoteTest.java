@@ -8,9 +8,16 @@ public class VoteTest {
 
 	@Test
 	public void testVoteJFrame() {
-		Vote vote = new Vote();
+		Vote vote;
+		try {
+			vote = new Vote();
+			vote.dispose();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		assert(true);
-		vote.dispose();
+		
 	}
 
 }

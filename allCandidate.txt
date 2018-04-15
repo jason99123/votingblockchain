@@ -1,0 +1,1 @@
+[{"Key":"CAN0", "Record":{"COUNT":"0","NAME":"Candidate1","STATUS":"ACTIVE"}},{"Key":"CAN1", "Record":{"COUNT":"10","NAME":"DQ1","STATUS":"DQ"}},{"Key":"CAN2", "Record":{"COUNT":"0","NAME":"Abstain","STATUS":"ACTIVE"}},{"Key":"CAN3", "Record":{"COUNT":"1","NAME":"newCan","STATUS":"ACTIVE"}},{"Key":"CAN4", "Record":{"COUNT":"0","NAME":"DQ2","STATUS":"DQ"}}]

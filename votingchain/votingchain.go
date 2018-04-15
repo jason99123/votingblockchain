@@ -162,7 +162,7 @@ func (s *SmartContract) queryAllCan(APIstub shim.ChaincodeStubInterface) sc.Resp
 	}
 	buffer.WriteString("]")
 
-	fmt.Printf("- queryAllCars:\n%s\n", buffer.String())
+	fmt.Printf("- queryAllCan:\n%s\n", buffer.String())
 
 	return shim.Success(buffer.Bytes())
 }

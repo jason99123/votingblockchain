@@ -6,6 +6,7 @@ import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -16,7 +17,12 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
+
+import org.hyperledger.fabric.sdk.exception.CryptoException;
+import org.hyperledger.fabric.sdk.exception.InvalidArgumentException;
 import org.json.*;
+
+import edu.emory.mathcs.backport.java.util.concurrent.TimeUnit;
 public class Login extends JFrame{
 
 	JButton loginbutton = new JButton("Login");
@@ -79,7 +85,37 @@ public class Login extends JFrame{
 					JOptionPane.showMessageDialog(panel, "Login Successful.\nProceeding to Voting Interface");
 					setVisible(false);
 					dispose();
-					initVote();
+					try {			
+						FabricLoginBridge bridge;
+						bridge = new FabricLoginBridge();
+						 FabricLoginBridge login = new FabricLoginBridge();
+						 String query = login.queryAll();
+						 String split[] = query.split("}}");
+						 Pattern p = Pattern.compile("\"([^\"]*)\"");
+						
+							    for (int i= 0;i<split.length-1;i++) {
+							    	ArrayList<String> checklist = new ArrayList<>();
+							    	Matcher m = p.matcher(split[i]);
+							    	while (m.find()) {
+							    		String tmp = m.group(1);
+							    		checklist.add(tmp);
+							    	}
+							    	String userID = checklist.get(6);
+							    	if (user.equals(userID)) {
+							    		String voteID = checklist.get(1);
+							    		bridge.changevotergroup(new String[] {voteID, "voted"});
+							    	}
+							    	}
+						initVote();
+					} catch (CryptoException | InvalidArgumentException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} catch (Exception e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					
+		
+					}
 				}
 				if (check.equals("admin")) {
 					dispose();
@@ -115,9 +151,9 @@ public class Login extends JFrame{
 	    String query = login.queryAll();
 	    String split[] = query.split("}}");
 	    Pattern p = Pattern.compile("\"([^\"]*)\"");
-	
-	    for (int i= 0;i<split.length;i++) {
-	    	ArrayList<String> list = new ArrayList<>();
+
+	    for (int i= 0;i<split.length-1;i++) {
+	    	ArrayList<String> list = new ArrayList<String>();
 	    	Matcher m = p.matcher(split[i]);
 	    	while (m.find()) {
 	    		String tmp = m.group(1);
@@ -138,11 +174,11 @@ public class Login extends JFrame{
 	    		}
 	    	}
 	    }
-
+	 
 		return "notmatch";
 		
 	}
-	private void initVote() {
+	private void initVote() throws Exception {
 		Vote vote = new Vote();
 		
 	}

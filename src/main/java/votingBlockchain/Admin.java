@@ -8,8 +8,12 @@ import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.Properties;
 import java.util.Random;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -17,6 +21,9 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+
+import org.hyperledger.fabric.sdk.exception.CryptoException;
+import org.hyperledger.fabric.sdk.exception.InvalidArgumentException;
 
 import com.jcraft.jsch.Channel;
 import com.jcraft.jsch.ChannelExec;
@@ -31,13 +38,15 @@ public class Admin extends JFrame{
 	JFrame adminFrame = new JFrame("Admin Operation");
 	JButton adduser = new JButton("Add User");
 	JButton adduserlist = new JButton("Add User from File");
-	JButton removeuser = new JButton("Remove User");
-	JButton resetuser = new JButton("Reset User");
+	JButton removeuser = new JButton("Disable VOTERID");
+	JButton resetuser = new JButton("Reset VOTERID");
 	JButton addCandidate = new JButton("Add Candidate");
-	JButton removeCandidate = new JButton("Remove Candidate");
+	JButton removeCandidate = new JButton("Disable CandidateID");
 	JButton moduser = new JButton("Mod User");
 	JButton reportresult = new JButton("Show Result");
 	JButton openvote = new JButton("Enable Voting");
+	JButton printallUser= new JButton("All User to File");
+	JButton printallCandidate= new JButton("All Candidate to File");
 	JButton exit = new JButton("Exit");
 	JButton closevote = new JButton("Close Voting");
 	
@@ -53,8 +62,10 @@ public class Admin extends JFrame{
 		adminFrame.add(removeCandidate);
 		adminFrame.add(moduser);
 		adminFrame.add(reportresult);
-		adminFrame.add(openvote);
-		adminFrame.add(closevote);
+//		adminFrame.add(openvote);
+//		adminFrame.add(closevote);
+		adminFrame.add(printallUser);
+		adminFrame.add(printallCandidate);
 		adminFrame.add(exit);
 		adminFrame.pack();
 		adminFrame.setVisible(true);
@@ -66,6 +77,26 @@ public class Admin extends JFrame{
 		exit.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent ae) {
 				exitAction();
+				}
+			});
+		printallUser.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent ae) {
+				try {
+					printallQuery();
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				}
+			});
+		printallCandidate.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent ae) {
+				try {
+					printallCanQuery();
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 				}
 			});
 		adduser.addActionListener(new ActionListener(){
@@ -118,6 +149,20 @@ public class Admin extends JFrame{
 				closeDocker();
 				}
 			});
+	}
+	private void printallQuery() throws Exception {
+		  PrintWriter writer = new PrintWriter("allUser.txt","UTF-8");
+		  FabricLoginBridge brigde = new FabricLoginBridge();
+		  String all = brigde.queryAll();
+		  writer.print(all);
+		  writer.close();
+	}
+	private void printallCanQuery() throws Exception{
+	       FabricVotingBridge bridge = new FabricVotingBridge();
+	       PrintWriter writer = new PrintWriter("allCandidate.txt","UTF-8");
+	       String all = bridge.queryAll();
+	       writer.print(all);
+	       writer.close();
 	}
 	private void closeDocker() {
 		//ssh to start the script
@@ -281,18 +326,44 @@ public class Admin extends JFrame{
 			}
 		});
 	}
+	public String[] getCandidate() throws Exception {
+		FabricVotingBridge vote = new FabricVotingBridge();
+	    String query = vote.queryAll();
+	    String split[] = query.split("}}");
+	    Pattern p = Pattern.compile("\"([^\"]*)\"");
+	    String ret[] = new String[3];
+	    int count = 0;
+	    for (int i= 0;i<split.length-1;i++) {
+	    	ArrayList<String> list = new ArrayList<String>();
+	    	Matcher m = p.matcher(split[i]);
+	    	while (m.find()) {
+	    		String tmp = m.group(1);
+	    		list.add(tmp);
+	    	}
+	    	String canName = list.get(6);
+	    	String status = list.get(8);
+	    	if (status.equals("ACTIVE")&&!canName.equals("Abstain")) {
+	    		ret[count] = canName;
+	    		count++;
+	    	}
+	    }
+	    return ret;
+	}
 	private void printResult() {
 		JFrame result = new JFrame("Voting Result");
 		JPanel panel = new JPanel();
 		panel.setLayout(null);
 		panel.setPreferredSize(new Dimension(300,200));
-		JLabel labelA = new JLabel("MRA");
-		JLabel labelB = new JLabel("MRSB");
-		JLabel labelC = new JLabel("MissC");
+		try {
+			String[] list = getCandidate();
+		
+		JLabel labelA = new JLabel(list[0]);
+		JLabel labelB = new JLabel(list[1]);
+		JLabel labelC = new JLabel(list[2]);
 		JLabel labelD = new JLabel("Abstain");
-		int a = getVoteNum("MRA");
-		int b = getVoteNum("MRSB");
-		int c = getVoteNum("MissC");
+		int a = getVoteNum(list[0]);
+		int b = getVoteNum(list[1]);
+		int c = getVoteNum(list[2]);
 		int d = getVoteNum("Abstain");
 		int total = a+b+c+d;
 		if (total==0) {
@@ -322,18 +393,41 @@ public class Admin extends JFrame{
 	
 		result.pack();
 		result.setVisible(true);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 	//read vote from server
 	private int getVoteNum(String name) {
-		if (name.equals("MRA"))
-			return 10;
-		if (name.equals("MRSB"))
-			return 2;
-		if (name.equals("MissC"))
-			return 7;
-		if (name.equals("Abstain"))
-			return 5;
-			
+		try {
+			FabricVotingBridge vote = new FabricVotingBridge();
+		    String query = vote.queryAll();
+		    String split[] = query.split("}}");
+		    Pattern p = Pattern.compile("\"([^\"]*)\"");
+
+	
+		    for (int i= 0;i<split.length-1;i++) {
+		    	ArrayList<String> list = new ArrayList<String>();
+		    	Matcher m = p.matcher(split[i]);
+		    	while (m.find()) {
+		    		String tmp = m.group(1);
+		    		list.add(tmp);
+		    	}
+		    	String canName = list.get(6);
+		    	if (canName.equals(name)) {
+		    		int votenum = Integer.parseInt(list.get(4));
+		    		return votenum;
+		    	}
+		}
+		    } catch (CryptoException | InvalidArgumentException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 		return 0;
 	}
 	
@@ -363,22 +457,76 @@ public class Admin extends JFrame{
 				String canname;
 				canname = name.getText();
 				String pw;
-				boolean check = checkCanexist();
+				boolean check=false;
+				try {
+					check = checkCanexist(canname);
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 				//pass username and pw to server
 				if (choice.equals("add")) {
 					if (check == true) {
 						JOptionPane.showMessageDialog(null, canname+" already exist!", "Error", JOptionPane.ERROR_MESSAGE);
 					} else {
+						FabricVotingBridge vote;
+						try {
+							vote = new FabricVotingBridge();
+							boolean empty = false;
+							int i = 0;
+							while(empty==false) {						 
+								String get = vote.querySingle("CAN"+Integer.toString(i));
+								if (get.equals("")) {
+									empty = true;
+									break;
+								}
+								i++;
+							}
+					
+							vote.createnewCan(new String[]{"CAN"+Integer.toString(i),canname,"0", "ACTIVE"});
+							 JOptionPane.showMessageDialog(null, canname+" added as "+"CAN"+Integer.toString(i));
+						} catch (CryptoException | InvalidArgumentException e) {
+							JOptionPane.showMessageDialog(null, "Error occurred!", "Error!", JOptionPane.ERROR_MESSAGE);
+						} catch (Exception e) {
+							JOptionPane.showMessageDialog(null, "Error occurred!", "Error!", JOptionPane.ERROR_MESSAGE);
+						}
 						JOptionPane.showMessageDialog(null, canname+" added as a candidate");
 					}
 				}else if (choice.equals("del")) {
+					try {
+						FabricVotingBridge vote = new FabricVotingBridge();
+						vote.changeCanStatus(new String[] {canname,"DQ"});
+					} catch (CryptoException | InvalidArgumentException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} catch (Exception e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 					
 				}
 			}
 		});
 		
 	}
-	private boolean checkCanexist() {
+	private boolean checkCanexist(String canname) throws Exception {
+		 FabricVotingBridge vote = new FabricVotingBridge();
+		 String query = vote.queryAll();
+		 String split[] = query.split("}}");
+		 Pattern p = Pattern.compile("\"([^\"]*)\"");
+		
+			    for (int i= 0;i<split.length-1;i++) {
+			    	ArrayList<String> checklist = new ArrayList<>();
+			    	Matcher m = p.matcher(split[i]);
+			    	while (m.find()) {
+			    		String tmp = m.group(1);
+			    		checklist.add(tmp);
+			    	}
+			    	String canID = checklist.get(6);
+			    	if (canname.equals(canID)) {
+			    		return true;
+			    	}
+			    }
 		return false;
 	}
 	private void exitAction() {
@@ -410,7 +558,13 @@ public class Admin extends JFrame{
 			public void actionPerformed(ActionEvent ae) {
 				String username = name.getText();
 				String pw;
-				boolean check = checkuserexist();
+				boolean check=false;
+				try {
+					check = checkuserexist(username);
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 				//pass username and pw to server
 				if (choice.equals("add")) {
 					if (check==true) {
@@ -421,24 +575,92 @@ public class Admin extends JFrame{
 						for (int i = 0 ;i<4;i++) {
 							sb.append(rm.nextInt(10));
 						}
-						JOptionPane.showMessageDialog(null, username+" added. Passcode: "+sb.toString());
+						FabricLoginBridge login;
+						try {
+							login = new FabricLoginBridge();
+							boolean empty = false;
+							int i = 0;
+							while(empty==false) {						 
+								String get = login.querySingle("VOTER"+Integer.toString(i));
+								if (get.equals("")) {
+									empty = true;
+									break;
+								}
+								i++;
+							}
+					
+							login.createnewVoter(new String[]{"VOTER"+Integer.toString(i), username, "1234", "voter"});
+							 JOptionPane.showMessageDialog(null, username+" added as "+"VOTER"+Integer.toString(i)+". Passcode: "+"1234");
+						} catch (CryptoException | InvalidArgumentException e) {
+							JOptionPane.showMessageDialog(null, "Error occurred!", "Error!", JOptionPane.ERROR_MESSAGE);
+						} catch (Exception e) {
+							JOptionPane.showMessageDialog(null, "Error occurred!", "Error!", JOptionPane.ERROR_MESSAGE);
+						}
+
+						
 					}
 				}else if (choice.equals("del")) {
-					
-				}else if (choice.equals("reset")) {
-					
-				}else if (choice.equals("mod")) {
-					if (check==true) {
-						JOptionPane.showMessageDialog(null, username+" group changed.");
-					} else {
-						JOptionPane.showMessageDialog(null, username + "does not exist", "Error!", JOptionPane.ERROR_MESSAGE);
+					FabricLoginBridge bridge;
+					try {
+						bridge = new FabricLoginBridge();
+						bridge.changevotergroup(new String[] {username, "notmatch"});
+					} catch (CryptoException | InvalidArgumentException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} catch (Exception e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
 					}
+				
+					}else if (choice.equals("reset")) {
+						FabricLoginBridge bridge;
+						try {
+							bridge = new FabricLoginBridge();
+							bridge.changevotergroup(new String[] {username, "voter"});
+						} catch (CryptoException | InvalidArgumentException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						} catch (Exception e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					}else if (choice.equals("mod")) {
+						FabricLoginBridge bridge;
+						try {
+							bridge = new FabricLoginBridge();
+							bridge.changevotergroup(new String[] {username, "admin"});
+						} catch (CryptoException | InvalidArgumentException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						} catch (Exception e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
 				}
+				
 			}
 		});
 		
+		
 	}
-	private boolean checkuserexist() {
+	private boolean checkuserexist(String user) throws Exception {
+		 FabricLoginBridge login = new FabricLoginBridge();
+		 String query = login.queryAll();
+		 String split[] = query.split("}}");
+		 Pattern p = Pattern.compile("\"([^\"]*)\"");
+		
+			    for (int i= 0;i<split.length-1;i++) {
+			    	ArrayList<String> checklist = new ArrayList<>();
+			    	Matcher m = p.matcher(split[i]);
+			    	while (m.find()) {
+			    		String tmp = m.group(1);
+			    		checklist.add(tmp);
+			    	}
+			    	String userID = checklist.get(6);
+			    	if (user.equals(userID)) {
+			    		return true;
+			    	}
+			    }
 		return false;
 	}
 }
