@@ -432,13 +432,19 @@ public class Admin extends JFrame{
 	}
 	
 	private void modCan(String choice) {
+		String labeltext;
+		if (choice.equals("add")) {
+			labeltext = "Enter Candidate Name";
+		}else {
+			labeltext = "Enter Candidate ID";
+		}
 		JFrame user = new JFrame("Modify Candidate");
 		JPanel panel = new JPanel();
 		panel.setLayout(null);
 		panel.setPreferredSize(new Dimension(300,80));
 		user.add(panel);
 		JTextField name = new JTextField();
-		JLabel instruction = new JLabel("Enter Candidate Name");
+		JLabel instruction = new JLabel(labeltext);
 		JButton submit = new JButton("Submit");
 		instruction.setBounds(10, 10 , 160 ,25);
 		panel.add(instruction);
@@ -534,13 +540,19 @@ public class Admin extends JFrame{
 		adminFrame.setVisible(false);
 	}
 	private void modUser(String choice) {
+		String labeltext;
+		if (choice.equals("add")){
+			labeltext = "Enter User ID";
+		}else {
+			labeltext = "Enter Voter ID";
+		}
 		JFrame user = new JFrame("Modify User");
 		JPanel panel = new JPanel();
 		panel.setLayout(null);
 		panel.setPreferredSize(new Dimension(300,80));
 		user.add(panel);
 		JTextField name = new JTextField();
-		JLabel instruction = new JLabel("Enter User ID");
+		JLabel instruction = new JLabel(labeltext);
 		JButton submit = new JButton("Submit");
 		instruction.setBounds(10, 10 , 120 ,25);
 		panel.add(instruction);

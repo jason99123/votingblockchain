@@ -101,7 +101,7 @@ public class FabricLoginBridge {
 	
 	public String querySingle(String voter) throws Exception {
 		
-		HFCAClient caClient = getHfCaClient("http://192.168.1.251:7054", null);
+		HFCAClient caClient = getHfCaClient("http://172.20.10.5:7054", null);
 		AppUser admin = getAdmin(caClient);
 		AppUser appUser = getUser(caClient, admin, "hfuser");
 		HFClient client = getHfClient();
@@ -115,7 +115,7 @@ public class FabricLoginBridge {
 	}
 	public String queryAll() throws Exception {
 		
-		HFCAClient caClient = getHfCaClient("http://192.168.1.251:7054", null);
+		HFCAClient caClient = getHfCaClient("http://172.20.10.5:7054", null);
 		AppUser admin = getAdmin(caClient);	
 		AppUser appUser = getUser(caClient, admin, "hfuser");	   
 		HFClient client = getHfClient(); 
@@ -126,7 +126,7 @@ public class FabricLoginBridge {
     	
 	}
 	public void createnewVoter(String[] args) throws Exception {
-		HFCAClient caClient = getHfCaClient("http://192.168.1.251:7054", null);
+		HFCAClient caClient = getHfCaClient("http://172.20.10.5:7054", null);
 		AppUser admin = getAdmin(caClient);
 		AppUser appUser = getUser(caClient, admin, "hfuser");
 		HFClient client = getHfClient();
@@ -135,7 +135,7 @@ public class FabricLoginBridge {
 		BlockEvent.TransactionEvent event = sendTransaction(client,channel,args).get(60, TimeUnit.SECONDS);
 	}
 	public void changevotergroup(String[] args) throws Exception{
-		HFCAClient caClient = getHfCaClient("http://192.168.1.251:7054", null);
+		HFCAClient caClient = getHfCaClient("http://172.20.10.5:7054", null);
 		AppUser admin = getAdmin(caClient);
 		AppUser appUser = getUser(caClient, admin, "hfuser");
 		HFClient client = getHfClient();
@@ -179,9 +179,9 @@ public class FabricLoginBridge {
 		
 	}
 	static Channel getChannel(HFClient client) throws InvalidArgumentException, TransactionException {
-        Peer peer = client.newPeer("peer0.org1.example.com", "grpc://192.168.1.251:7051");
-        EventHub eventHub = client.newEventHub("eventhub01", "grpc://192.168.1.251:7053");
-        Orderer orderer = client.newOrderer("orderer.example.com", "grpc://192.168.1.251:7050");
+        Peer peer = client.newPeer("peer0.org1.example.com", "grpc://172.20.10.5:7051");
+        EventHub eventHub = client.newEventHub("eventhub01", "grpc://172.20.10.5:7053");
+        Orderer orderer = client.newOrderer("orderer.example.com", "grpc://172.20.10.5:7050");
         Channel channel = client.newChannel("mychannel");
         channel.addPeer(peer);
         channel.addEventHub(eventHub);
