@@ -35,8 +35,13 @@ import org.hyperledger.fabric_ca.sdk.HFCAClient;
 import org.hyperledger.fabric_ca.sdk.RegistrationRequest;
 
 public class FabricVotingBridge {
-	// to connect Main to Fabric backbones
-	
+	/* to connect Main to Fabric backbones
+	 * the framework to connect to is the candidate list framework
+	 * the structure and function calling is similar to FabricLoginBridge
+	 */
+	// ipVotePeer is the ip of the blockchain
+	private final static String ipVotePeer = "172.20.10.4"; 
+/*
 	private ChaincodeManager manager;
 	private static FabricVotingBridge instance= null;
 	public static FabricVotingBridge obtain() throws CryptoException, InvalidArgumentException {
@@ -91,27 +96,30 @@ public class FabricVotingBridge {
 		peers.setorgName("org1.example.com");
 		peers.setorgMSPid("Org1MSP");
 		peers.setorgDomainName("org1.example.com");
-		peers.addPeer("peer0.org1.example.com", "peer0.org1.example.com", "grpc://172.20.10.4:7051", "grpc://172.20.10.4:7053", "http://172.20.10.4:7054");
+		peers.addPeer("peer0.org1.example.com", "peer0.org1.example.com", "grpc://"+ipVotePeer+":7051", "grpc://"+ipVotePeer+":7053", "http://"+ipVotePeer+":7054");
 		return peers;
 	}
 	private Orderers getorderers() {
 		Orderers orderer = new Orderers();
 		orderer.setdomainName("example.com");
-		orderer.addOrderer("orderer.example.com", "grpc://172.20.10.4");
+		orderer.addOrderer("orderer.example.com", "grpc://"+ipVotePeer+"");
 		return orderer;
 	}
-	public String querySingle(String voter) throws Exception{
-		HFCAClient caClient = getHfCaClient("http://172.20.10.4:7054", null);
+	*/
+	// querySingle is to return the data set of a candidate record
+	// candidate is the String of the name
+	public String querySingle(String candidate) throws Exception{
+		HFCAClient caClient = getHfCaClient("http://"+ipVotePeer+":7054", null);
 		AppUser admin = getAdmin(caClient);
 		AppUser appUser = getUser(caClient, admin, "hfuser");
 		HFClient client = getHfClient();
 		client.setUserContext(admin);
     	Channel channel = getChannel(client);
-    	return queryCan(client,voter);
+    	return queryCan(client,candidate);
 	}
 	public void connectBridge() throws Exception {
 	
-		HFCAClient caClient = getHfCaClient("http://172.20.10.4:7054", null);
+		HFCAClient caClient = getHfCaClient("http://"+ipVotePeer+":7054", null);
 		AppUser admin = getAdmin(caClient);
 		AppUser appUser = getUser(caClient, admin, "hfuser");
 		HFClient client = getHfClient();
@@ -123,9 +131,12 @@ public class FabricVotingBridge {
   //  	queryCar(client, "CAR11");
   //  	queryBlockChain(client);
 	}
+	/*
+	 * return all blockchain set
+	 */
 	public String queryAll() throws Exception{
 		
-		HFCAClient caClient = getHfCaClient("http://172.20.10.4:7054", null);
+		HFCAClient caClient = getHfCaClient("http://"+ipVotePeer+":7054", null);
 		AppUser admin = getAdmin(caClient);
 		AppUser appUser = getUser(caClient, admin, "hfuser");
 		HFClient client = getHfClient();
@@ -134,8 +145,12 @@ public class FabricVotingBridge {
     	String result = queryBlockChain(client);
     	return result;
 	}
+	/*
+	 * createnewCan is to create a new candidate 
+	 * args[] = {candidateID, candidatename, votenumber, status}
+	 */
 	public void createnewCan(String args[]) throws Exception {
-		HFCAClient caClient = getHfCaClient("http://172.20.10.4:7054", null);
+		HFCAClient caClient = getHfCaClient("http://"+ipVotePeer+":7054", null);
 		AppUser admin = getAdmin(caClient);
 		AppUser appUser = getUser(caClient, admin, "hfuser");
 		HFClient client = getHfClient();
@@ -143,6 +158,7 @@ public class FabricVotingBridge {
     	Channel channel = getChannel(client);
 		BlockEvent.TransactionEvent event = sendTransaction(client,channel, args).get(60, TimeUnit.SECONDS);
 	}
+	// called by ceatenewCan
     static CompletableFuture<BlockEvent.TransactionEvent> sendTransaction(HFClient client, Channel channel, String[] args)
             throws InvalidArgumentException, ProposalException {
         TransactionProposalRequest tpr = client.newTransactionProposalRequest();
@@ -153,6 +169,7 @@ public class FabricVotingBridge {
         Collection<ProposalResponse> responses = channel.sendTransactionProposal(tpr);
         return channel.sendTransaction(responses);
     }
+    
 	private String queryCan(HFClient client, String query) throws InvalidArgumentException, ProposalException {
 		Channel channel = client.getChannel("mychannel");
         QueryByChaincodeRequest qpr = client.newQueryProposalRequest();
@@ -169,9 +186,9 @@ public class FabricVotingBridge {
 		
 	}
 	static Channel getChannel(HFClient client) throws InvalidArgumentException, TransactionException {
-        Peer peer = client.newPeer("peer0.org1.example.com", "grpc://172.20.10.4:7051");
-        EventHub eventHub = client.newEventHub("eventhub01", "grpc://172.20.10.4:7053");
-        Orderer orderer = client.newOrderer("orderer.example.com", "grpc://172.20.10.4:7050");
+        Peer peer = client.newPeer("peer0.org1.example.com", "grpc://"+ipVotePeer+":7051");
+        EventHub eventHub = client.newEventHub("eventhub01", "grpc://"+ipVotePeer+":7053");
+        Orderer orderer = client.newOrderer("orderer.example.com", "grpc://"+ipVotePeer+":7050");
         Channel channel = client.newChannel("mychannel");
         channel.addPeer(peer);
         channel.addEventHub(eventHub);
@@ -248,8 +265,11 @@ public class FabricVotingBridge {
        }
        return "";
    }
+   /*
+    * changeCanstatus is to change the designated user to a specific status
+    */
 	public void changeCanStatus(String[] args) throws Exception{
-		HFCAClient caClient = getHfCaClient("http://172.20.10.4:7054", null);
+		HFCAClient caClient = getHfCaClient("http://"+ipVotePeer+":7054", null);
 		AppUser admin = getAdmin(caClient);
 		AppUser appUser = getUser(caClient, admin, "hfuser");
 		HFClient client = getHfClient();

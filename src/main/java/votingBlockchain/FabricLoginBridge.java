@@ -33,8 +33,12 @@ import org.hyperledger.fabric_ca.sdk.HFCAClient;
 import org.hyperledger.fabric_ca.sdk.RegistrationRequest;
 
 public class FabricLoginBridge {
-	// to connect Main to Fabric backbones
-	
+	/* FabricLoginBridge is to provide connections to contact the blockchain framework
+	   The main blockchain framework to communicate is to the user list framework
+	*/
+	// constant ipLoginPeer to determine the peer ip to connect to
+	private final static String ipLoginPeer = "172.20.10.5";
+/*
 	private ChaincodeManager manager;
 	private static FabricLoginBridge instance= null;
 	public static FabricLoginBridge obtain() throws CryptoException, InvalidArgumentException {
@@ -99,9 +103,14 @@ public class FabricLoginBridge {
 		return orderer;
 	}
 	
+	*/
+	/*
+	 * querySingle is to return the data set for the input username
+	 * String voter is the user name from input
+	 */
 	public String querySingle(String voter) throws Exception {
 		
-		HFCAClient caClient = getHfCaClient("http://172.20.10.5:7054", null);
+		HFCAClient caClient = getHfCaClient("http://"+ipLoginPeer+":7054", null);
 		AppUser admin = getAdmin(caClient);
 		AppUser appUser = getUser(caClient, admin, "hfuser");
 		HFClient client = getHfClient();
@@ -113,20 +122,30 @@ public class FabricLoginBridge {
    	
 
 	}
+	/*
+	 * queryAll is to return the whole chain data set 
+	 */
 	public String queryAll() throws Exception {
 		
-		HFCAClient caClient = getHfCaClient("http://172.20.10.5:7054", null);
+		HFCAClient caClient = getHfCaClient("http://"+ipLoginPeer+":7054", null);
 		AppUser admin = getAdmin(caClient);	
 		AppUser appUser = getUser(caClient, admin, "hfuser");	   
 		HFClient client = getHfClient(); 
 		client.setUserContext(admin);
     	Channel channel = getChannel(client);
-    	String result = queryBlockChain(client);
+    	String result = queryBlockChain(client); 
     	return result;
     	
 	}
+	/*
+	 * createnewVoter is to add a new user into the system
+	 * args[] = {voterID, username, password, usergroup}
+	 * default blockchain port 7054
+	 * AppUser is to set the admin and user status of the chain connection, not relate to user of the data in blockchain
+	 * HFClient is default environment of Fabric
+	 */
 	public void createnewVoter(String[] args) throws Exception {
-		HFCAClient caClient = getHfCaClient("http://172.20.10.5:7054", null);
+		HFCAClient caClient = getHfCaClient("http://"+ipLoginPeer+":7054", null);
 		AppUser admin = getAdmin(caClient);
 		AppUser appUser = getUser(caClient, admin, "hfuser");
 		HFClient client = getHfClient();
@@ -134,8 +153,12 @@ public class FabricLoginBridge {
     	Channel channel = getChannel(client);
 		BlockEvent.TransactionEvent event = sendTransaction(client,channel,args).get(60, TimeUnit.SECONDS);
 	}
+	/*
+	 * changevotergroup is to change the user group of a particular user
+	 * args[] = {username, usergroup}
+	 */
 	public void changevotergroup(String[] args) throws Exception{
-		HFCAClient caClient = getHfCaClient("http://172.20.10.5:7054", null);
+		HFCAClient caClient = getHfCaClient("http://"+ipLoginPeer+":7054", null);
 		AppUser admin = getAdmin(caClient);
 		AppUser appUser = getUser(caClient, admin, "hfuser");
 		HFClient client = getHfClient();
@@ -143,6 +166,11 @@ public class FabricLoginBridge {
     	Channel channel = getChannel(client);
     	BlockEvent.TransactionEvent event = changeGroupTransaction(client,channel,args).get(60, TimeUnit.SECONDS);
 	}
+	/*
+	 * function called by changevotergroup 
+	 * necessary function by Fabric to call the transaction
+	 * connect to the Go chaincode 
+	 */
 	static CompletableFuture<BlockEvent.TransactionEvent> changeGroupTransaction(HFClient client, Channel channel, String[] args)
             throws InvalidArgumentException, ProposalException {
         TransactionProposalRequest tpr = client.newTransactionProposalRequest();
@@ -153,6 +181,9 @@ public class FabricLoginBridge {
         Collection<ProposalResponse> responses = channel.sendTransactionProposal(tpr);
         return channel.sendTransaction(responses);
     }
+	/*
+	 * function called by createnewVoter
+	 */
     static CompletableFuture<BlockEvent.TransactionEvent> sendTransaction(HFClient client, Channel channel, String[] args)
             throws InvalidArgumentException, ProposalException {
         TransactionProposalRequest tpr = client.newTransactionProposalRequest();
@@ -163,6 +194,9 @@ public class FabricLoginBridge {
         Collection<ProposalResponse> responses = channel.sendTransactionProposal(tpr);
         return channel.sendTransaction(responses);
     }
+    /*
+     * queryVoter is called by query function to connect to the blockchain to carry out querybychaincoderequest
+     */
 	private String queryVoter(HFClient client, String query) throws InvalidArgumentException, ProposalException {
 		Channel channel = client.getChannel("mychannel");
         QueryByChaincodeRequest qpr = client.newQueryProposalRequest();
@@ -178,10 +212,15 @@ public class FabricLoginBridge {
         return "";
 		
 	}
+	/*
+	 * to get Channel configuration of blockchain 
+	 * include Peer,eventhub, orderer and channel
+	 * default port peer 7051, eventhub 7053, orderer 7050 
+	 */
 	static Channel getChannel(HFClient client) throws InvalidArgumentException, TransactionException {
-        Peer peer = client.newPeer("peer0.org1.example.com", "grpc://172.20.10.5:7051");
-        EventHub eventHub = client.newEventHub("eventhub01", "grpc://172.20.10.5:7053");
-        Orderer orderer = client.newOrderer("orderer.example.com", "grpc://172.20.10.5:7050");
+        Peer peer = client.newPeer("peer0.org1.example.com", "grpc://"+ipLoginPeer+":7051");
+        EventHub eventHub = client.newEventHub("eventhub01", "grpc://"+ipLoginPeer+":7053");
+        Orderer orderer = client.newOrderer("orderer.example.com", "grpc://"+ipLoginPeer+":7050");
         Channel channel = client.newChannel("mychannel");
         channel.addPeer(peer);
         channel.addEventHub(eventHub);
@@ -196,6 +235,9 @@ public class FabricLoginBridge {
        client.setCryptoSuite(cryptoSuite);
        return client;
    }
+   /*
+    * get the user config of the blockchain framework with organization setting
+    */
    static AppUser getUser(HFCAClient caClient, AppUser registrar, String userId) throws Exception {
        AppUser voteUser = tryDeserialize(userId);
        if (voteUser == null) {
@@ -208,7 +250,9 @@ public class FabricLoginBridge {
        return voteUser;
    }
 
-
+   /*
+    * get the admin of the blockchain framework
+    */
    static AppUser getAdmin(HFCAClient caClient) throws Exception {
        AppUser admin = tryDeserialize("admin");
        if (admin == null) {
@@ -218,6 +262,7 @@ public class FabricLoginBridge {
        }
        return admin;
    }
+
    static void serialize(AppUser voteuser) throws IOException {
        try (ObjectOutputStream oos = new ObjectOutputStream(Files.newOutputStream(
                Paths.get(voteuser.getName() + ".jso")))) {
@@ -245,6 +290,9 @@ public class FabricLoginBridge {
        caClient.setCryptoSuite(cryptoSuite);
        return caClient;
    }
+   /*
+    * called by queryAll
+    */
    static String queryBlockChain(HFClient client) throws ProposalException, InvalidArgumentException {
        Channel channel = client.getChannel("mychannel");
        QueryByChaincodeRequest qpr = client.newQueryProposalRequest();

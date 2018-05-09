@@ -25,6 +25,10 @@ import org.json.*;
 import edu.emory.mathcs.backport.java.util.concurrent.TimeUnit;
 public class Login extends JFrame{
 
+	/*
+	 * Login class contains most of the function to allow user to access the program
+	 * The class is constructed on JFrame
+	 */
 	JButton loginbutton = new JButton("Login");
 	JPanel panel = new JPanel(new GridBagLayout());
 	GridBagConstraints gcs = new GridBagConstraints();
@@ -69,6 +73,10 @@ public class Login extends JFrame{
 		loginbutton.setBounds(95, 160,80,25);
 		panel2.add(loginbutton);
 	}
+	/*
+	 * readInfo accepts input from user of the username and password
+	 * it will distinguish user from different groups and direct to Admin or Vote class
+	 */
 	public void readInfo() {
 		loginbutton.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent ae) {
@@ -81,6 +89,7 @@ public class Login extends JFrame{
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				} 
+				// voter usergroup condition
 				if (check.equals("user")) {
 					JOptionPane.showMessageDialog(panel, "Login Successful.\nProceeding to Voting Interface");
 					setVisible(false);
@@ -117,17 +126,20 @@ public class Login extends JFrame{
 		
 					}
 				}
+				// admin usergroup condition
 				if (check.equals("admin")) {
 					dispose();
 					setVisible(false);
 					JOptionPane.showMessageDialog(panel, "Welcome "+user+".\nProceeding to Configuration Panel");
 					Admin admin = new Admin();
 				}
+				// voter who voted group condition
 				if (check.equals("voted")) {
 					dispose();
 					setVisible(false);
 					JOptionPane.showMessageDialog(null, "This user has already voted.\nIf you have not voted, please contact the adminstrator.","ERROR" ,JOptionPane.ERROR_MESSAGE);
 				}
+				// incorrect info condition
 				if (check.equals("notmatch"))
 					JOptionPane.showMessageDialog(null, "Wrong UserID or Password!","ERROR" ,JOptionPane.ERROR_MESSAGE);
 					userfield.setText("");
@@ -178,6 +190,7 @@ public class Login extends JFrame{
 		return "notmatch";
 		
 	}
+	// start a vote class instance
 	private void initVote() throws Exception {
 		Vote vote = new Vote();
 		

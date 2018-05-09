@@ -20,6 +20,10 @@ import javax.swing.JRadioButton;
 import org.apache.commons.codec.digest.DigestUtils;
 
 public class Vote extends JFrame{
+	/*
+	 * Vote class provide function to vote
+	 * mainly relate to candidate list modification
+	 */
 	int candidateCount = 0;
 	String[] allCandidate = new String[10];
 	JRadioButton option1 = new JRadioButton();
