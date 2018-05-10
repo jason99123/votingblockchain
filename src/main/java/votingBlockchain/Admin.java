@@ -34,7 +34,10 @@ import com.jcraft.jsch.Session;
 
 
 public class Admin extends JFrame{
-	
+	/*
+	 * admin class provides function to modify the two chain list
+	 * admin class is in JFrame 
+	 */
 	JFrame adminFrame = new JFrame("Admin Operation");
 	JButton adduser = new JButton("Add User");
 	JButton adduserlist = new JButton("Add User from File");
@@ -139,7 +142,7 @@ public class Admin extends JFrame{
 				printResult();
 				}
 			});
-		openvote.addActionListener(new ActionListener(){
+/*		openvote.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent ae) {
 				initDocker();
 				}
@@ -149,7 +152,11 @@ public class Admin extends JFrame{
 				closeDocker();
 				}
 			});
+			*/
 	}
+	/*
+	 * printallQuery is to output a text file allUser.txt stating all the records of users
+	 */
 	private void printallQuery() throws Exception {
 		  PrintWriter writer = new PrintWriter("allUser.txt","UTF-8");
 		  FabricLoginBridge brigde = new FabricLoginBridge();
@@ -157,6 +164,9 @@ public class Admin extends JFrame{
 		  writer.print(all);
 		  writer.close();
 	}
+	/*
+	 * printallCanQuery is to ouput a text file allCandidate.txt stating all records of the candidate
+	 */
 	private void printallCanQuery() throws Exception{
 	       FabricVotingBridge bridge = new FabricVotingBridge();
 	       PrintWriter writer = new PrintWriter("allCandidate.txt","UTF-8");
@@ -164,6 +174,7 @@ public class Admin extends JFrame{
 	       writer.print(all);
 	       writer.close();
 	}
+	/*
 	private void closeDocker() {
 		//ssh to start the script
 				JFrame frame = new JFrame("Stop Voting");
@@ -326,6 +337,10 @@ public class Admin extends JFrame{
 			}
 		});
 	}
+	*/
+	/*
+	 * return the candidate name, current size of candidate in voting is 3
+	 */
 	public String[] getCandidate() throws Exception {
 		FabricVotingBridge vote = new FabricVotingBridge();
 	    String query = vote.queryAll();
@@ -349,6 +364,9 @@ public class Admin extends JFrame{
 	    }
 	    return ret;
 	}
+	/*
+	 * create a new panel to show the voting result, format name, vote count, percentage
+	 */
 	private void printResult() {
 		JFrame result = new JFrame("Voting Result");
 		JPanel panel = new JPanel();
@@ -430,7 +448,12 @@ public class Admin extends JFrame{
 		
 		return 0;
 	}
-	
+	/*
+	 * modCan is to have modification on the candidate list
+	 * actions include add and del
+	 * add is to add new candidate
+	 * del is to change the candidate status to DQ
+	 */
 	private void modCan(String choice) {
 		String labeltext;
 		if (choice.equals("add")) {
@@ -515,6 +538,10 @@ public class Admin extends JFrame{
 		});
 		
 	}
+	/*
+	 * to check if a given name exist in the candidate list
+	 * boolean return value
+	 */
 	private boolean checkCanexist(String canname) throws Exception {
 		 FabricVotingBridge vote = new FabricVotingBridge();
 		 String query = vote.queryAll();
@@ -535,10 +562,20 @@ public class Admin extends JFrame{
 			    }
 		return false;
 	}
+	/*
+	 * close the panel/frame
+	 */
 	private void exitAction() {
 		adminFrame.dispose();
 		adminFrame.setVisible(false);
 	}
+	/*
+	 * modUser allows modification on user list
+	 * action add add new user 
+	 * action del change user status to not match
+	 * action reset change user status to voter
+	 * action mod change user status to admin
+	 */
 	private void modUser(String choice) {
 		String labeltext;
 		if (choice.equals("add")){
@@ -655,6 +692,10 @@ public class Admin extends JFrame{
 		
 		
 	}
+	/*
+	 * check if username is on user list
+	 * return boolean value
+	 */
 	private boolean checkuserexist(String user) throws Exception {
 		 FabricLoginBridge login = new FabricLoginBridge();
 		 String query = login.queryAll();

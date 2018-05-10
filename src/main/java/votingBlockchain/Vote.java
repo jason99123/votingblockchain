@@ -59,7 +59,10 @@ public class Vote extends JFrame{
 		submitVote();
 		
 	}
-
+/*
+ * the current setting only show first three active candidate + abstain choice
+ * Add JRadioButton to the jframe for more choice
+ */
 	private void setCandidateList() throws Exception {
 		
 		String[] list = getCandidate();
@@ -68,7 +71,10 @@ public class Vote extends JFrame{
 		option3.setText(list[2]);
 		option4.setText("Abstain");
 	}
-
+/*
+ * submit choice to the blockchain and close the program
+ * 
+ */
 	private void submitVote() {
 		confirmButton.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent ae) {
@@ -104,6 +110,10 @@ public class Vote extends JFrame{
 
 			});
 	}
+	/*
+	 * read the candidate chain
+	 * only status Active can be considered as a choice
+	 */
 	public String[] getCandidate() throws Exception {
 		FabricVotingBridge vote = new FabricVotingBridge();
 	    String query = vote.queryAll();
@@ -127,6 +137,9 @@ public class Vote extends JFrame{
 	    }
 	    return ret;
 	}
+	/*
+	 * function to connect to FabricVotingBridge
+	 */
 	private void updateVote(String choice) {
 		
 		try {

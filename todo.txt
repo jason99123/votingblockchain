@@ -1,0 +1,14 @@
+Current program only carry out basic connection
+
+No large scale demostration yet
+
+Error handling not implemented yet
+
+To do:
+
+1. Visualization
+2. Demostartion on multiple computers
+3. Automation scenario on large scale voting
+
+
+Can ask Dr Wong for hardware support, he may able to provide computers as resource for the project

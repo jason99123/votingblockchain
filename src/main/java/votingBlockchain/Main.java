@@ -49,6 +49,7 @@ public class Main {
 		   public static void main(String[] args) throws Exception {
 //			  FabricLoginBridge brigde = new FabricLoginBridge();
 //			  System.out.println(brigde.queryAll());
+			   // start the program by launching login panel
 	       Login login = new Login();
 
 
